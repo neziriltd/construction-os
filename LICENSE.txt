@@ -1,0 +1,16 @@
+Construction-OS™ – Proprietary Licence
+
+Copyright © 2026 Saimir Neziri. All rights reserved.
+
+Construction-OS, its source code, design, templates, guides, videos, pictures, documents
+and the Construction-OS brand card ("the Software") are the property of Saimir Neziri.
+
+No one may copy, modify, publish, distribute, sublicense, sell, reverse engineer or create
+derivative works of the Software, in whole or in part, without the written permission of
+the owner. Customers receive only the right to use the Software under their subscription
+agreement and the Construction-OS Terms of Service.
+
+Third-party open-source components keep their own licences (Apache 2.0, MIT, BSD, SIL OFL);
+see "Third-party Software & Licences" in the Owner Pack.
+
+Contact: Saimir Neziri
