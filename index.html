@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UniVerse-OS — Everything you love. One UniVerse.</title>
+<meta name="description" content="UniVerse-OS — one super-app for social, TV & entertainment, education, marketplace, payments and AI, on every screen.">
+<meta name="theme-color" content="#0b0820">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0820;--fg:#f1f0ff;--muted:#a19cc9;--card:#151132;--line:#2a2456;--input:#100d27;--hover:#221c4a;--accent:#7c5cff;--accent-fg:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+h1,h2,h3,h4{margin:0 0 .5em;line-height:1.2}
+h2{font-size:1.35rem}h3{font-size:1.1rem}
+.muted{color:var(--muted)}.small{font-size:.82rem}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}.row.end{justify-content:flex-end}.row.between{justify-content:space-between}
+.grid{display:grid;gap:1rem}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.g4{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem}
+.btn{appearance:none;border:1px solid transparent;background:var(--accent);color:var(--accent-fg);padding:.55rem 1rem;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.danger{background:#c62828;color:#fff}
+.btn.sm{padding:.3rem .65rem;font-size:.82rem;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--input);border:1px solid var(--line);border-radius:9px;padding:.55rem .7rem;width:100%}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+input[type=checkbox],input[type=radio]{width:auto}
+.field{margin-bottom:.9rem}.field>label{display:block;font-weight:600;font-size:.86rem;margin-bottom:.3rem}
+.req{color:#e53935}
+.f-head{margin:1.2rem 0 .6rem;padding-bottom:.3rem;border-bottom:1px solid var(--line);color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{display:inline-flex;gap:.35rem;align-items:center;padding:.3rem .6rem;border:1px solid var(--line);border-radius:999px;font-size:.85rem;cursor:pointer;background:var(--input)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg label{cursor:pointer}.seg input{display:none}
+.seg span{display:block;padding:.3rem .7rem;font-size:.82rem;border-right:1px solid var(--line)}
+.seg label:last-child span{border-right:0}
+.seg input:checked+span{background:var(--accent);color:var(--accent-fg)}
+.checklist .cl-row{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px dashed var(--line)}
+.thumbs{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem}.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+canvas.sig{width:100%;max-width:420px;height:130px;border:1px dashed var(--muted);border-radius:9px;background:#fff;touch-action:none;display:block;margin-bottom:.4rem}
+canvas.sig.small{height:90px;max-width:280px;flex:1}
+.so-item{display:inline-flex;flex-direction:column;align-items:center;margin:.3rem;font-size:.8rem}.so-item img{width:120px;height:44px;object-fit:contain;background:#fff;border-radius:6px;border:1px solid var(--line)}
+.rec-view .rv-row{display:grid;grid-template-columns:180px 1fr;gap:.8rem;padding:.5rem 0;border-bottom:1px solid var(--line)}
+.rv-l{font-weight:600;color:var(--muted);font-size:.85rem}
+.rec-view img.ph{max-width:220px;border-radius:8px;margin:.2rem}
+.rec-view img.sigimg{max-width:240px;background:#fff;border-radius:6px}
+.cl-tbl{width:100%;border-collapse:collapse}.cl-tbl td{padding:.3rem;border-bottom:1px dashed var(--line)}
+.ans{font-weight:700;width:70px}.ans.yes{color:#2e7d32}.ans.no{color:#c62828}
+table.list{width:100%;border-collapse:collapse}
+table.list th,table.list td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--line);font-size:.9rem}
+table.list tr.click{cursor:pointer}table.list tr.click:hover{background:var(--hover)}
+.badge{display:inline-block;padding:.12rem .55rem;border-radius:999px;font-size:.74rem;font-weight:700;background:var(--hover)}
+.b-open{background:#fff3cd;color:#7a5b00}.b-closed{background:#d7f5dd;color:#1b5e20}.b-overdue{background:#ffd6d6;color:#9b1c1c}.b-inv{background:#dbe8ff;color:#1e3a8a}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;z-index:100;overflow:auto;padding:4vh 1rem}
+.modal{background:var(--card);color:var(--fg);border-radius:16px;padding:1.4rem;max-width:760px;width:100%;position:relative;border:1px solid var(--line)}
+.modal-x{position:absolute;right:.7rem;top:.6rem;background:none;border:0;font-size:1.2rem;color:var(--muted);cursor:pointer}
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;padding:.6rem 1rem;border-radius:10px;opacity:0;transition:.25s;z-index:200;pointer-events:none;font-size:.9rem}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.net{font-size:.75rem;font-weight:700}.net.on{color:#43a047}.net.off{color:#e53935}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+.kpi .n{font-size:2rem;font-weight:800;line-height:1}.kpi .l{color:var(--muted);font-size:.82rem;margin-top:.3rem}
+.ai-out{white-space:pre-wrap;line-height:1.55}
+.chat{display:flex;flex-direction:column;gap:.6rem;max-height:56vh;overflow:auto;padding:.3rem}
+.msg{padding:.7rem .9rem;border-radius:12px;max-width:85%;white-space:pre-wrap}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-fg)}
+.msg.bot{align-self:flex-start;background:var(--hover)}
+@media print{.noprint,nav,.topbar,.bottomnav{display:none!important}body{background:#fff;color:#000}.modal-bg{position:static;background:none;padding:0}.modal{border:0;max-width:none}}
+
+body{background:radial-gradient(1000px 600px at 90% -10%,#2b1a6b 0%,transparent 60%),radial-gradient(800px 500px at -10% 110%,#0d3b6b 0%,transparent 60%),#0b0820;background-attachment:fixed;color-scheme:dark;display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+#rail{position:sticky;top:0;height:100vh;padding:1rem .7rem;border-right:1px solid var(--line);background:rgba(11,8,32,.7);backdrop-filter:blur(12px)}
+#rail a{display:flex;gap:.7rem;align-items:center;padding:.6rem .8rem;border-radius:12px;color:#cfcaf5;text-decoration:none;font-weight:600;margin-bottom:.15rem}
+#rail a span{width:1.4rem;text-align:center}#rail a:hover{background:var(--hover)}#rail a.act{background:linear-gradient(90deg,#7c5cff,#00c2ff);color:#fff}
+.u-logo small{font-size:.6em;font-weight:800;color:#cfcaf5}.u-logo{font-size:1.6rem;font-weight:900;padding:.3rem .8rem 1.2rem;letter-spacing:-.02em}.u-logo b{background:linear-gradient(90deg,#7c5cff,#00c2ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wrap{min-width:0}
+.top{display:flex;justify-content:flex-end;padding:.6rem 1.2rem}
+#main{padding:0 1.2rem 2rem;max-width:1150px}
+.hero{padding:2.5rem 1.5rem;border-radius:22px;background:linear-gradient(135deg,rgba(124,92,255,.35),rgba(0,194,255,.18));border:1px solid var(--line);text-align:center}
+.hero h1{font-size:clamp(1.6rem,4.5vw,2.8rem);font-weight:900;letter-spacing:-.02em}.hero p{color:#d6d2ff}
+.u-ai{display:flex;gap:.5rem;align-items:center;max-width:640px;margin:1.2rem auto 0;background:var(--input);border:1px solid var(--line);border-radius:999px;padding:.3rem .35rem .3rem 1rem}
+.u-ai.in{margin:1rem 0 0;max-width:none}
+.u-ai span{color:#00c2ff;font-size:1.2rem}.u-ai input{border:0;background:transparent;outline:0!important}
+.u-ai button{border:0;border-radius:999px;width:40px;height:40px;background:linear-gradient(135deg,#7c5cff,#00c2ff);color:#fff;cursor:pointer;flex:none}
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem;margin-top:1.2rem}
+.mod{display:flex;flex-direction:column;gap:.4rem;align-items:center;padding:1.1rem .5rem;border-radius:16px;background:var(--card);border:1px solid var(--line);text-decoration:none;color:var(--fg);font-weight:700}
+.mod span{font-size:1.8rem}.mod:hover{border-color:var(--accent);transform:translateY(-2px);transition:.15s}
+.mini{padding:.4rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.avt{border-radius:50%;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7c5cff,#00c2ff);color:#fff;font-weight:800;flex:none}
+.compose,.post{max-width:640px;margin:0 auto 1rem}
+.ptext{margin:.7rem 0}
+.pgrid{display:grid;gap:3px;border-radius:12px;overflow:hidden;margin:.6rem 0}.pgrid.n2,.pgrid.n4{grid-template-columns:1fr 1fr}.pgrid.n3{grid-template-columns:1fr 1fr 1fr}.pgrid img{width:100%;height:100%;max-height:520px;object-fit:cover}
+.acts{border-top:1px solid var(--line);padding-top:.5rem}
+.act{background:none;border:0;color:var(--muted);font:inherit;font-weight:700;cursor:pointer;padding:.3rem .6rem;border-radius:8px}.act:hover{background:var(--hover)}.act.on{color:#ff4d8d}
+.cm{font-size:.88rem;padding:.3rem 0}.cf{margin-top:.4rem}
+.player{padding:.6rem}.player video{width:100%;max-height:70vh;border-radius:12px;background:#000;display:block}
+.badge.q{background:linear-gradient(90deg,#7c5cff,#00c2ff);color:#fff}
+.vid{cursor:pointer;position:relative}.vthumb{height:100px;border-radius:10px;background:linear-gradient(135deg,#2b1a6b,#0d3b6b);display:flex;align-items:center;justify-content:center;font-size:2rem}.vid [data-x]{position:absolute;top:.4rem;right:.4rem}.fn{word-break:break-all;margin-top:.4rem}
+.chan{text-decoration:none;color:var(--fg);display:flex;justify-content:space-between;align-items:center}.chan:hover{border-color:var(--accent)}
+.course{cursor:pointer}.course:hover{border-color:var(--accent)}.cbanner{height:70px;border-radius:10px;background:linear-gradient(135deg,#7c5cff,#00c2ff);display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:.6rem}
+.bar{height:6px;background:var(--hover);border-radius:9px;margin-top:.6rem;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#7c5cff,#00c2ff)}
+.lesson{border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;margin-bottom:.5rem}.lesson summary{cursor:pointer;font-weight:700}
+.qz{margin-bottom:1rem}.opt{display:block;padding:.4rem .6rem;border:1px solid var(--line);border-radius:9px;margin-top:.35rem;cursor:pointer}.opt.right{border-color:#2e7d32;background:rgba(46,125,50,.2)}.opt.wrong{border-color:#c62828;background:rgba(198,40,40,.2)}
+.listing{cursor:pointer;position:relative;padding:.6rem}.listing img,.lph{width:100%;height:150px;object-fit:cover;border-radius:10px;background:var(--hover);display:flex;align-items:center;justify-content:center;font-size:2.4rem;margin-bottom:.5rem}
+.lp{font-size:1.1rem;color:#00c2ff;display:block}.lp.big{font-size:1.6rem;font-weight:900}
+.soldtag{position:absolute;top:1rem;left:1rem;background:#c62828;color:#fff;font-weight:800;font-size:.75rem;padding:.15rem .5rem;border-radius:6px}
+.gal{display:flex;gap:.5rem;overflow:auto;margin-bottom:.8rem}.gal img{height:240px;border-radius:12px}
+.paycard{background:linear-gradient(135deg,#7c5cff,#00c2ff);border-radius:20px;padding:1.4rem;color:#fff;max-width:420px;margin-bottom:.8rem;box-shadow:0 14px 40px rgba(124,92,255,.35)}.bal{font-size:2.4rem;font-weight:900;margin:.4rem 0}
+.txr{display:flex;gap:.8rem;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--line)}.neg{color:#ff6b8a}.pos{color:#4be3a4}
+.msg.bot{background:#221c4a}
+#tabs{display:none}
+@media (max-width:820px){
+ body{grid-template-columns:1fr}#rail{display:none}
+ #main{padding:0 .7rem 90px}
+ #tabs{display:flex;position:fixed;bottom:0;left:0;right:0;justify-content:space-around;background:rgba(11,8,32,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:.35rem 0 calc(.35rem + env(safe-area-inset-bottom));z-index:50}
+ #tabs a{color:#a19cc9;text-decoration:none;display:flex;flex-direction:column;align-items:center;font-size:1.15rem;min-width:44px}#tabs a small{font-size:.6rem}#tabs a.act{color:#fff}
+ .top{justify-content:space-between}.top::before{content:'UniVerse-OS';font-weight:900;font-size:1.2rem}
+}
+@media (min-width:1800px){#main{max-width:1500px}body{font-size:17px}}
+</style>
+</head>
+<body>
+<nav id="rail"></nav>
+<div class="wrap">
+  <div class="top"><span class="row"><span id="net" class="net"></span><a href="#setup" style="text-decoration:none;font-size:1.2rem">⚙</a></span></div>
+  <main id="main"></main>
+</div>
+<nav id="tabs"></nav>
+<script>
+/* ===== Shared core: storage (offline + cloud sync), AI, i18n, helpers ===== */
+(function(){
+  const LS = {
+    get(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+  };
+  const mem = {};
+  const Store = {
+    app: 'app', keys: [], data: {}, db: null, uid: null, cloud: false, timers: {}, listeners: [],
+    async init(app, defaults){
+      this.app = app; this.keys = Object.keys(defaults);
+      for (const k of this.keys){
+        const v = LS.get(app+':'+k);
+        this.data[k] = (v !== null && v !== undefined) ? v : JSON.parse(JSON.stringify(defaults[k]));
+      }
+      this.connect();
+      return this.data;
+    },
+    async connect(){
+      try{
+        if(!(window.claude && window.claude.use)) return;
+        const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+        if(!db || !user) return;
+        const id = await user.id();
+        if(!id) return;
+        this.db = db; this.uid = id;
+        let any = false;
+        for (const k of this.keys){
+          try{
+            const v = await this.pull(k);
+            if (v !== undefined){ this.data[k] = v; LS.set(this.app+':'+k, v); any = true; }
+            else { this.push(k); }
+          }catch(e){ console.warn('db read', k, e); }
+        }
+        this.cloud = true;
+        this.listeners.forEach(f=>{ try{ f(any); }catch(e){} });
+      }catch(e){ console.warn('cloud unavailable', e); }
+    },
+    onCloud(f){ this.listeners.push(f); },
+    save(k){
+      const ok = LS.set(this.app+':'+k, this.data[k]);
+      if (!ok && !this.db) toast('⚠️ Device storage is full — export a backup and remove some photos/files');
+      if (!this.db) return;
+      clearTimeout(this.timers[k]);
+      this.timers[k] = setTimeout(()=>this.push(k), 800);
+    },
+    col(){ return this.db.collection('data/users/'+this.uid); },
+    async pull(k){
+      const meta = await this.col().doc(this.app+'_'+k).get();
+      if (!meta || !meta.exists) return undefined;
+      const m = meta.data();
+      if (m.v !== undefined) return m.v;
+      if (m.chunks){
+        let str='';
+        for (let i=0;i<m.chunks;i++){ const c = await this.col().doc(this.app+'_'+k+'__'+i).get(); if(!c.exists) return undefined; str += c.data().s; }
+        return JSON.parse(str);
+      }
+      return undefined;
+    },
+    inflight:{}, again:{},
+    async push(k){
+      if(!this.db) return;
+      if (this.inflight[k]){ this.again[k]=true; return; }
+      this.inflight[k]=true;
+      try{
+        const str = JSON.stringify(this.data[k]);
+        const SZ = 200000;
+        if (str.length < SZ){ await this.col().doc(this.app+'_'+k).set({ v: this.data[k], t: Date.now() }); }
+        else {
+          const n = Math.ceil(str.length/SZ);
+          for (let i=0;i<n;i++) await this.col().doc(this.app+'_'+k+'__'+i).set({ s: str.slice(i*SZ,(i+1)*SZ) });
+          await this.col().doc(this.app+'_'+k).set({ chunks:n, t: Date.now() });
+        }
+      }catch(e){ console.warn('db write', k, e); toast(e && e.code==='quota_exceeded' ? 'Cloud storage full – kept on this device' : 'Cloud save failed – kept on this device'); }
+      this.inflight[k]=false;
+      if (this.again[k]){ this.again[k]=false; this.push(k); }
+    },
+    saveAll(){ this.keys.forEach(k=>this.save(k)); }
+  };
+
+  async function askAI(prompt, onText){
+    try{
+      if (window.claude && window.claude.use){
+        const sample = await window.claude.use('sample');
+        if (sample){
+          const r = await sample(prompt, { onText: onText ? (p)=>onText(p.text) : undefined, cache:false });
+          return r.text;
+        }
+      }
+    }catch(e){
+      if (e && e.code === 'rate_limited') return '⚠️ AI is busy – please try again in a minute.';
+      if (e && e.code === 'not_granted') return '⚠️ AI permission was not granted.';
+      console.warn(e);
+    }
+    return null; // caller falls back to offline logic
+  }
+
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(t){ try{ return new Date(t).toLocaleString(I18N.lang==='sq'?'sq-AL':undefined,{dateStyle:'medium',timeStyle:'short'}); }catch(e){ return new Date(t).toISOString(); } }
+  function $(s,r){ return (r||document).querySelector(s); }
+  function $$(s,r){ return Array.from((r||document).querySelectorAll(s)); }
+  function toast(msg){
+    let t = document.getElementById('toast');
+    if(!t){ t=document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+    t.textContent = msg; t.className='show';
+    clearTimeout(t._h); t._h=setTimeout(()=>t.className='',2600);
+  }
+  function modal(html, onMount){
+    const m = document.createElement('div'); m.className='modal-bg';
+    m.innerHTML = '<div class="modal"><button class="modal-x" aria-label="Close">✕</button>'+html+'</div>';
+    document.body.appendChild(m);
+    const close=()=>m.remove();
+    m.querySelector('.modal-x').onclick=close;
+    m.addEventListener('click',e=>{ if(e.target===m) close(); });
+    if(onMount) onMount(m.querySelector('.modal'), close);
+    return close;
+  }
+  function confirmBox(msg){
+    return new Promise(res=>{
+      modal('<h3>'+esc(msg)+'</h3><div class="row end"><button class="btn ghost" data-n>'+t('cancel')+'</button><button class="btn danger" data-y>'+t('confirm')+'</button></div>',(el,close)=>{
+        el.querySelector('[data-n]').onclick=()=>{close();res(false);};
+        el.querySelector('[data-y]').onclick=()=>{close();res(true);};
+      });
+    });
+  }
+  function resizeImage(file, max){
+    max = max||900;
+    return new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const s = Math.min(1, max/Math.max(img.width,img.height));
+          const c = document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          res(c.toDataURL('image/jpeg',0.62));
+        };
+        img.onerror=rej; img.src=r.result;
+      };
+      r.onerror=rej; r.readAsDataURL(file);
+    });
+  }
+  async function copyText(txt){
+    try{ await navigator.clipboard.writeText(txt); toast(t('copied')); }
+    catch(e){
+      modal('<h3>'+t('copyManual')+'</h3><textarea style="width:100%;height:240px">'+esc(txt)+'</textarea>');
+    }
+  }
+  async function downloadFile(filename, data){
+    try{
+      if (window.claude && window.claude.use){
+        const d = await window.claude.use('downloads');
+        if (d){ await d.save({filename, data}); return; }
+      }
+    }catch(e){ if(e && e.code) { toast(e.message||'Download declined'); return; } }
+    try{
+      const blob = new Blob([data],{type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    }catch(e){ copyText(data); }
+  }
+
+  // i18n
+  const I18N = { lang:'en', dict:{en:{},sq:{}}, names:{en:'English',sq:'Shqip'} };
+  function t(k){ const d=I18N.dict[I18N.lang]||{}; return d[k]!==undefined?d[k]:(I18N.dict.en[k]!==undefined?I18N.dict.en[k]:k); }
+  function detectLang(saved){
+    if (saved && I18N.dict[saved]) return saved;
+    const nl = (navigator.language||'en').slice(0,2).toLowerCase();
+    return I18N.dict[nl] ? nl : 'en';
+  }
+
+  // AI translation of the whole interface into any language (cached by the app)
+  async function aiTranslateDict(code, langName){
+    const src = I18N.dict.en;
+    const prompt = 'Translate the VALUES of this JSON object of app interface strings from English into '+langName+' ('+code+'). Keep keys unchanged, keep emoji, keep product names "Digital-OS", "UniVerse", "Construction-OS" unchanged. Return ONLY the JSON object, nothing else.\n\n'+JSON.stringify(src);
+    const out = await askAI(prompt);
+    if (!out || out.startsWith('⚠️')) return null;
+    try{ const j = JSON.parse(out.slice(out.indexOf('{'), out.lastIndexOf('}')+1)); return j; }catch(e){ return null; }
+  }
+  const LANGS = {en:'English',sq:'Shqip (Albanian)',it:'Italiano',de:'Deutsch',fr:'Français',es:'Español',pt:'Português',el:'Ελληνικά',tr:'Türkçe',ro:'Română',pl:'Polski',nl:'Nederlands',ru:'Русский',uk:'Українська',ar:'العربية',hi:'हिन्दी',ur:'اردو',bn:'বাংলা',zh:'中文',ja:'日本語',ko:'한국어',sw:'Kiswahili',sr:'Srpski',hr:'Hrvatski',bg:'Български',mk:'Македонски',hu:'Magyar',cs:'Čeština',sv:'Svenska',no:'Norsk',da:'Dansk',fi:'Suomi',he:'עברית',fa:'فارسی',id:'Bahasa Indonesia',ms:'Bahasa Melayu',th:'ไทย',vi:'Tiếng Việt',tl:'Filipino',pa:'ਪੰਜਾਬੀ',ta:'தமிழ்',am:'አማርኛ',yo:'Yorùbá',ha:'Hausa',zu:'isiZulu'};
+  window.aiTranslateDict = aiTranslateDict; window.LANGS = LANGS;
+  // settings: object persisted by the app (needs .lang, .customLangs); saveFn persists it
+  async function applyLang(code, settings, saveFn){
+    settings.customLangs = settings.customLangs || {};
+    Object.keys(settings.customLangs).forEach(c=>{ I18N.dict[c]=settings.customLangs[c]; I18N.names[c]=LANGS[c]||c; });
+    if (!I18N.dict[code]){
+      toast('🌍 Translating to '+(LANGS[code]||code)+'…');
+      const d = await aiTranslateDict(code, LANGS[code]||code);
+      if (!d){ toast('Translation needs the AI connection — showing English for now'); code='en'; }
+      else { settings.customLangs[code]=d; I18N.dict[code]=d; I18N.names[code]=LANGS[code]||code; }
+    }
+    I18N.lang = code; settings.lang = code; saveFn && saveFn();
+    document.documentElement.lang = code;
+    document.documentElement.dir = ['ar','he','fa','ur'].includes(code) ? 'rtl' : 'ltr';
+    return code;
+  }
+  function langOptions(cur){ return Object.keys(LANGS).map(c=>'<option value="'+c+'"'+(c===cur?' selected':'')+'>'+LANGS[c]+(I18N.dict[c]?'':' ✨')+'</option>').join(''); }
+  function deviceLang(settings){
+    if (settings && settings.lang) return settings.lang;
+    const nl=(navigator.language||'en').slice(0,2).toLowerCase();
+    return LANGS[nl] ? nl : 'en';
+  }
+  window.applyLang=applyLang; window.langOptions=langOptions; window.deviceLang=deviceLang;
+
+  // online / offline indicator
+  function netBadge(el){
+    const upd=()=>{ if(!el) return; const on=navigator.onLine; el.textContent = on ? (Store.cloud? '● '+t('synced') : '● '+t('online')) : '● '+t('offline'); el.className='net '+(on?'on':'off'); };
+    window.addEventListener('online',()=>{upd(); if(Store.db) Store.saveAll();});
+    window.addEventListener('offline',upd);
+    Store.onCloud(upd);
+    upd();
+  }
+
+  Object.assign(window,{Store,askAI,uid,esc,fmtDate,$,$$,toast,modal,confirmBox,resizeImage,copyText,downloadFile,I18N,t,detectLang,netBadge});
+})();
+
+/* ===== Shared dynamic form engine (render / read / view) + signature pad ===== */
+(function(){
+  function tl(x){ if (Array.isArray(x)) return (I18N.lang==='sq' && x[1]) ? x[1] : x[0]; return x==null?'':String(x); }
+
+  function sigPad(canvas){
+    const ctx = canvas.getContext('2d');
+    const ratio = 2;
+    function fit(){ const w=canvas.clientWidth||320, h=canvas.clientHeight||130; canvas.width=w*ratio; canvas.height=h*ratio; ctx.scale(ratio,ratio); ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.strokeStyle='#111'; ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); }
+    fit();
+    let drawing=false, dirty=false, last=null;
+    const pos=e=>{ const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; };
+    canvas.addEventListener('pointerdown',e=>{ drawing=true; last=pos(e); canvas.setPointerCapture(e.pointerId); e.preventDefault(); });
+    canvas.addEventListener('pointermove',e=>{ if(!drawing) return; const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; dirty=true; e.preventDefault(); });
+    const end=()=>{ drawing=false; };
+    canvas.addEventListener('pointerup',end); canvas.addEventListener('pointercancel',end);
+    return { clear(){ ctx.setTransform(1,0,0,1,0,0); fit(); dirty=false; }, value(){ return dirty ? canvas.toDataURL('image/png') : ''; }, get dirty(){return dirty;} };
+  }
+
+  // render editable form
+  function renderForm(container, fields, values){
+    values = values||{};
+    const pads = {};
+    container.innerHTML = fields.map(f=>{
+      const id='f_'+f.id, req=f.required?' <span class="req">*</span>':'';
+      const lab='<label for="'+id+'">'+esc(tl(f.label))+req+'</label>';
+      const v = values[f.id];
+      switch(f.type){
+        case 'heading': return '<h4 class="f-head">'+esc(tl(f.label))+'</h4>';
+        case 'textarea': return '<div class="field">'+lab+'<textarea id="'+id+'" rows="3">'+esc(v||'')+'</textarea>'+(f.ai?'<button type="button" class="btn sm ai-btn" data-ai="'+f.id+'">✨ '+t('aiDraft')+'</button>':'')+'</div>';
+        case 'number': return '<div class="field">'+lab+'<input id="'+id+'" type="number" value="'+esc(v||'')+'"></div>';
+        case 'date': return '<div class="field">'+lab+'<input id="'+id+'" type="date" value="'+esc(v||new Date().toISOString().slice(0,10))+'"></div>';
+        case 'datetime': return '<div class="field">'+lab+'<input id="'+id+'" type="datetime-local" value="'+esc(v||'')+'"></div>';
+        case 'select': return '<div class="field">'+lab+'<select id="'+id+'"><option value="">—</option>'+(f.options||[]).map(o=>'<option'+(tl(o)===v?' selected':'')+'>'+esc(tl(o))+'</option>').join('')+'</select></div>';
+        case 'multi': return '<div class="field">'+lab+'<div class="chips" id="'+id+'">'+(f.options||[]).map(o=>'<label class="chip"><input type="checkbox" value="'+esc(tl(o))+'"'+((v||[]).includes(tl(o))?' checked':'')+'> '+esc(tl(o))+'</label>').join('')+'</div></div>';
+        case 'yesno': return '<div class="field">'+lab+'<div class="seg" id="'+id+'">'+['Yes','No','N/A'].map(o=>'<label><input type="radio" name="'+id+'" value="'+o+'"'+(v===o?' checked':'')+'><span>'+t(o)+'</span></label>').join('')+'</div></div>';
+        case 'checklist': return '<div class="field">'+lab+'<div class="checklist" id="'+id+'">'+(f.items||[]).map((it,i)=>{ const cv=(v||{})[i]; return '<div class="cl-row"><span>'+esc(tl(it))+'</span><div class="seg">'+['Yes','No','N/A'].map(o=>'<label><input type="radio" name="'+id+'_'+i+'" value="'+o+'"'+(cv===o?' checked':'')+'><span>'+t(o)+'</span></label>').join('')+'</div></div>'; }).join('')+'</div></div>';
+        case 'photo': return '<div class="field">'+lab+'<input id="'+id+'" type="file" accept="image/*" multiple><div class="thumbs" id="'+id+'_th">'+(v||[]).map(s=>'<img src="'+s+'">').join('')+'</div></div>';
+        case 'signature': return '<div class="field">'+lab+'<canvas class="sig" id="'+id+'"></canvas><button type="button" class="btn sm ghost" data-clear="'+f.id+'">'+t('clear')+'</button>'+(v?'<div class="muted small">'+t('signedAlready')+'</div>':'')+'</div>';
+        case 'signoff': return '<div class="field">'+lab+'<div class="signoff" id="'+id+'"><div class="so-list">'+(v||[]).map(s=>'<div class="so-item"><img src="'+s.sig+'"><span>'+esc(s.name)+'</span></div>').join('')+'</div><div class="row"><input placeholder="'+t('name')+'" class="so-name"><canvas class="sig small"></canvas></div><div class="row"><button type="button" class="btn sm" data-soadd>'+t('addSignature')+'</button><button type="button" class="btn sm ghost" data-soclear>'+t('clear')+'</button></div></div></div>';
+        default: return '<div class="field">'+lab+'<input id="'+id+'" type="text" value="'+esc(v||'')+'"></div>';
+      }
+    }).join('');
+    // wire photos
+    const photos = {};
+    fields.filter(f=>f.type==='photo').forEach(f=>{
+      photos[f.id] = (values[f.id]||[]).slice();
+      const inp = container.querySelector('#f_'+f.id);
+      inp.onchange = async ()=>{
+        for (const file of inp.files){ try{ const d=await resizeImage(file,900); photos[f.id].push(d); container.querySelector('#f_'+f.id+'_th').insertAdjacentHTML('beforeend','<img src="'+d+'">'); }catch(e){ toast('Image failed'); } }
+        inp.value='';
+      };
+    });
+    fields.filter(f=>f.type==='signature').forEach(f=>{
+      pads[f.id] = sigPad(container.querySelector('#f_'+f.id));
+      container.querySelector('[data-clear="'+f.id+'"]').onclick=()=>pads[f.id].clear();
+    });
+    const signoffs = {};
+    fields.filter(f=>f.type==='signoff').forEach(f=>{
+      signoffs[f.id] = (values[f.id]||[]).slice();
+      const box = container.querySelector('#f_'+f.id);
+      const pad = sigPad(box.querySelector('canvas'));
+      box.querySelector('[data-soclear]').onclick=()=>pad.clear();
+      box.querySelector('[data-soadd]').onclick=()=>{
+        const name = box.querySelector('.so-name').value.trim();
+        if(!name || !pad.dirty){ toast(t('nameAndSign')); return; }
+        const s={name, sig:pad.value(), at:Date.now()}; signoffs[f.id].push(s);
+        box.querySelector('.so-list').insertAdjacentHTML('beforeend','<div class="so-item"><img src="'+s.sig+'"><span>'+esc(name)+'</span></div>');
+        box.querySelector('.so-name').value=''; pad.clear();
+      };
+    });
+    return {
+      read(){
+        const out={}; const missing=[];
+        fields.forEach(f=>{
+          const el = container.querySelector('#f_'+f.id);
+          let v;
+          switch(f.type){
+            case 'heading': return;
+            case 'multi': v=$$('input:checked',el).map(i=>i.value); break;
+            case 'yesno': { const c=container.querySelector('input[name="f_'+f.id+'"]:checked'); v=c?c.value:''; break; }
+            case 'checklist': v={}; (f.items||[]).forEach((it,i)=>{ const c=container.querySelector('input[name="f_'+f.id+'_'+i+'"]:checked'); if(c) v[i]=c.value; }); break;
+            case 'photo': v=photos[f.id]; break;
+            case 'signature': v=pads[f.id].value() || (values[f.id]||''); break;
+            case 'signoff': v=signoffs[f.id]; break;
+            default: v=el.value.trim();
+          }
+          const empty = v===''||v==null||(Array.isArray(v)&&!v.length)||(typeof v==='object'&&!Array.isArray(v)&&!Object.keys(v).length);
+          if (f.required && empty) missing.push(tl(f.label));
+          out[f.id]=v;
+        });
+        return {values:out, missing};
+      },
+      set(fid, val){ const el=container.querySelector('#f_'+fid); if(el) el.value=val; }
+    };
+  }
+
+  function viewRecord(fields, values){
+    return '<div class="rec-view">'+fields.map(f=>{
+      const v = values[f.id];
+      if (f.type==='heading') return '<h4 class="f-head">'+esc(tl(f.label))+'</h4>';
+      let body='';
+      if (f.type==='photo') body = (v||[]).map(s=>'<img class="ph" src="'+s+'">').join('') || '<span class="muted">—</span>';
+      else if (f.type==='signature') body = v ? '<img class="sigimg" src="'+v+'">' : '<span class="muted">—</span>';
+      else if (f.type==='signoff') body = (v||[]).map(s=>'<div class="so-item"><img src="'+s.sig+'"><span>'+esc(s.name)+' · '+fmtDate(s.at)+'</span></div>').join('') || '<span class="muted">—</span>';
+      else if (f.type==='checklist') body = '<table class="cl-tbl">'+(f.items||[]).map((it,i)=>{ const a=(v||{})[i]||'—'; return '<tr><td>'+esc(tl(it))+'</td><td class="ans '+String(a).replace('/','').toLowerCase()+'">'+esc(t(a))+'</td></tr>'; }).join('')+'</table>';
+      else if (Array.isArray(v)) body = v.length? esc(v.join(', ')) : '<span class="muted">—</span>';
+      else if (f.type==='yesno') body = v? esc(t(v)) : '—';
+      else if (f.type==='datetime') body = v? esc(String(v).replace('T',' ')) : '—';
+      else body = v ? esc(v).replace(/\n/g,'<br>') : '<span class="muted">—</span>';
+      return '<div class="rv-row"><div class="rv-l">'+esc(tl(f.label))+'</div><div class="rv-v">'+body+'</div></div>';
+    }).join('')+'</div>';
+  }
+
+  function recordText(fields, values){
+    return fields.filter(f=>!['photo','signature','heading'].includes(f.type)).map(f=>{
+      let v=values[f.id];
+      if (f.type==='checklist') v=(f.items||[]).map((it,i)=>'  - '+tl(it)+': '+((v||{})[i]||'—')).join('\n');
+      else if (f.type==='signoff') v=(v||[]).map(s=>s.name).join(', ');
+      else if (Array.isArray(v)) v=v.join(', ');
+      return tl(f.label)+': '+(v||'—');
+    }).join('\n');
+  }
+
+  function checklistScore(fields, values){
+    let yes=0,no=0;
+    fields.filter(f=>f.type==='checklist').forEach(f=>{ Object.values(values[f.id]||{}).forEach(a=>{ if(a==='Yes')yes++; else if(a==='No')no++; }); });
+    return {yes,no};
+  }
+
+  Object.assign(window,{tl,sigPad,renderForm,viewRecord,recordText,checklistScore});
+})();
+
+/* ===================== UNIVERSE ===================== */
+Object.assign(I18N.dict.en,{
+  home:'Home',social:'Social',tv:'TV',learn:'Education',market:'Marketplace',wallet:'Pay',ai:'UniVerse AI',setup:'Settings',
+  save:'Save',cancel:'Cancel',confirm:'Confirm',delete:'Delete',clear:'Clear',name:'Name',search:'Search…',add:'Add',send:'Send',copied:'Copied',copyManual:'Copy this text',saved:'Saved',deleted:'Deleted',
+  synced:'Cloud synced',online:'Online',offline:'Offline',
+  welcomeTitle:'Everything you love. One UniVerse.',welcomeSub:'Social · TV & entertainment · Education · Marketplace · Payments · AI — on every screen.',
+  whatsNew:'What\'s on your mind?',post:'Post',addPhoto:'Photo',like:'Like',comment:'Comment',share:'Share',writeComment:'Write a comment…',noPosts:'No posts yet — share your first moment.',
+  myChannel:'My Channel',addVideo:'Add videos from this device',noVideos:'No videos yet. Add videos from your phone or computer — they stay on this device.',liveTV:'Live TV & streaming',quality:'Quality',videoLocal:'Videos are stored on this device only.',
+  courses:'Courses',newCourse:'Create a course with AI',topic:'Topic (e.g. Excel basics, English for work, Python)',generate:'Generate',lesson:'Lesson',quiz:'Quiz',checkAns:'Check answers',score:'Score',progress:'Progress',complete:'Mark complete',
+  sell:'Sell something',title:'Title',price:'Price',category:'Category',condition:'Condition',location:'Location',description:'Description',photos:'Photos',noListings:'No listings yet.',buy:'Buy now',sold:'Sold',markSold:'Mark sold',favourites:'Favourites',mine:'My listings',all:'All',
+  balance:'Balance',sendMoney:'Send',topUp:'Top up',history:'History',amount:'Amount',to:'To',note:'Note',payDemo:'Sandbox mode — no real money moves until a licensed payment provider is connected.',insufficient:'Insufficient balance',
+  profile:'Profile',displayName:'Display name',bio:'Bio',avatar:'Avatar',language:'Language',followDevice:'Follow device language',exportData:'Export backup',importData:'Import backup',resetData:'Reset everything',
+  thinking:'Thinking…',aiNeeds:'UniVerse AI answers live when UniVerse-OS runs on its Claude page. Everything else works offline.',askAI:'Ask UniVerse AI…'
+});
+Object.assign(I18N.dict.sq,{
+  home:'Kreu',social:'Social',tv:'TV',learn:'Edukim',market:'Tregu',wallet:'Pagesa',ai:'UniVerse AI',setup:'Cilësimet',
+  save:'Ruaj',cancel:'Anulo',confirm:'Konfirmo',delete:'Fshi',clear:'Pastro',name:'Emri',search:'Kërko…',add:'Shto',send:'Dërgo',copied:'U kopjua',copyManual:'Kopjo këtë tekst',saved:'U ruajt',deleted:'U fshi',
+  synced:'Sinkronizuar',online:'Online',offline:'Offline',
+  welcomeTitle:'Gjithçka që do. Një UniVerse.',welcomeSub:'Social · TV & argëtim · Edukim · Treg · Pagesa · AI — në çdo ekran.',
+  whatsNew:'Çfarë ke në mendje?',post:'Posto',addPhoto:'Foto',like:'Pëlqej',comment:'Komento',share:'Shpërndaj',writeComment:'Shkruaj një koment…',noPosts:'Ende pa postime — ndaj momentin tënd të parë.',
+  myChannel:'Kanali Im',addVideo:'Shto video nga kjo pajisje',noVideos:'Ende pa video. Shto video nga telefoni ose kompjuteri — mbeten në këtë pajisje.',liveTV:'TV live & streaming',quality:'Cilësia',videoLocal:'Videot ruhen vetëm në këtë pajisje.',
+  courses:'Kurset',newCourse:'Krijo kurs me AI',topic:'Tema (p.sh. Excel, Anglisht për punë, Python)',generate:'Gjenero',lesson:'Mësimi',quiz:'Kuiz',checkAns:'Kontrollo',score:'Rezultati',progress:'Progresi',complete:'Përfundo',
+  sell:'Shit diçka',title:'Titulli',price:'Çmimi',category:'Kategoria',condition:'Gjendja',location:'Vendndodhja',description:'Përshkrimi',photos:'Foto',noListings:'Ende pa njoftime.',buy:'Bli tani',sold:'Shitur',markSold:'Shëno të shitur',favourites:'Të preferuarat',mine:'Njoftimet e mia',all:'Të gjitha',
+  balance:'Bilanci',sendMoney:'Dërgo',topUp:'Mbush',history:'Historiku',amount:'Shuma',to:'Për',note:'Shënim',payDemo:'Modalitet prove — asnjë para reale nuk lëviz derisa të lidhet një ofrues pagesash i licencuar.',insufficient:'Bilanc i pamjaftueshëm',
+  profile:'Profili',displayName:'Emri i shfaqur',bio:'Bio',avatar:'Avatari',language:'Gjuha',followDevice:'Ndiq gjuhën e pajisjes',exportData:'Eksporto',importData:'Importo',resetData:'Rivendos gjithçka',
+  thinking:'Duke menduar…',aiNeeds:'UniVerse AI përgjigjet live kur UniVerse-OS hapet në faqen e tij Claude. Çdo gjë tjetër funksionon offline.',askAI:'Pyet UniVerse AI…'
+});
+
+const TABS=[['home','⌂'],['social','💬'],['tv','📺'],['learn','🎓'],['market','🛒'],['wallet','💳'],['ai','✦'],['setup','⚙']];
+const CATS=['Electronics','Vehicles','Home & Garden','Fashion','Tools & Construction','Property','Jobs & Services','Sports','Kids','Other'];
+const CHANNELS=[['BBC iPlayer','https://www.bbc.co.uk/iplayer'],['ITVX','https://www.itv.com/watch'],['Channel 4','https://www.channel4.com'],['RTSH','https://www.rtsh.al'],['Top Channel','https://top-channel.tv'],['Klan Kosova','https://klankosova.tv'],['YouTube','https://www.youtube.com'],['Pluto TV','https://pluto.tv']];
+const BUILTIN_COURSES=[
+ {id:'c-safety',title:'Site Safety Essentials',builtin:true,lessons:[
+  {title:'Hierarchy of control',body:'Eliminate the hazard first. If you can\'t, substitute it with something less dangerous, then use engineering controls (barriers, extraction), administrative controls (permits, training, signage) and finally PPE — the last line of defence.'},
+  {title:'Permits to work',body:'A permit is a formal written system used for high-risk work such as hot works, confined spaces, excavations and electrical isolation. It states the work, the hazards, the precautions and who is authorised, and it must be closed out when the job ends.'},
+  {title:'Reporting near misses',body:'A near miss is an event that could have caused harm but didn\'t. Reporting them is how sites learn and prevent the next accident. Report quickly, describe what happened, and suggest a fix.'}],
+  quiz:[{q:'What is the LAST line of defence?',o:['Elimination','PPE','Permits','Signage'],a:1},{q:'Which work normally needs a permit?',o:['Sweeping','Hot works','Tea break','Reading drawings'],a:1},{q:'Why report near misses?',o:['To blame someone','To prevent future accidents','It is optional paperwork','To slow the job'],a:1}]},
+ {id:'c-money',title:'Personal Money Basics',builtin:true,lessons:[
+  {title:'Budgeting',body:'List your income, then your fixed costs (rent, bills), then flexible spending. A simple rule: 50% needs, 30% wants, 20% savings and debt repayment.'},
+  {title:'Emergency fund',body:'Aim to save 3–6 months of essential costs in an easy-access account before investing. It protects you from borrowing when something unexpected happens.'}],
+  quiz:[{q:'In the 50/30/20 rule, what is the 20%?',o:['Wants','Needs','Savings & debt','Tax'],a:2},{q:'How big should an emergency fund be?',o:['1 week','3–6 months of essentials','10 years','Nothing'],a:1}]}
+];
+const DEFAULTS={profile:{name:'',bio:'',avatar:''},settings:{lang:null,customLangs:{}},posts:[],courses:[],progress:{},listings:[],favs:[],wallet:{balance:500,tx:[]},chat:[]};
+let S; const st={};
+
+/* ---- IndexedDB for videos (device only) ---- */
+const VDB={ db:null,
+  open(){ return new Promise((res)=>{ if(this.db) return res(this.db); try{ const r=indexedDB.open('universe-videos',1); r.onupgradeneeded=()=>r.result.createObjectStore('v',{keyPath:'id'}); r.onsuccess=()=>{ this.db=r.result; res(this.db); }; r.onerror=()=>res(null); }catch(e){ res(null); } }); },
+  async all(){ const d=await this.open(); if(!d) return []; return new Promise(res=>{ try{ const q=d.transaction('v').objectStore('v').getAll(); q.onsuccess=()=>res(q.result||[]); q.onerror=()=>res([]); }catch(e){ res([]); } }); },
+  async put(o){ const d=await this.open(); if(!d) return false; return new Promise(res=>{ try{ const tx=d.transaction('v','readwrite'); tx.objectStore('v').put(o); tx.oncomplete=()=>res(true); tx.onerror=()=>res(false); }catch(e){ res(false); } }); },
+  async del(id){ const d=await this.open(); if(!d) return; return new Promise(res=>{ const tx=d.transaction('v','readwrite'); tx.objectStore('v').delete(id); tx.oncomplete=()=>res(); tx.onerror=()=>res(); }); }
+};
+
+function me(){ return S.profile.name || 'Me'; }
+function avatar(name,img,size){ size=size||40; return img?'<img class="avt" src="'+img+'" style="width:'+size+'px;height:'+size+'px">':'<span class="avt" style="width:'+size+'px;height:'+size+'px">'+esc((name||'?').slice(0,1).toUpperCase())+'</span>'; }
+const money=n=>new Intl.NumberFormat(I18N.lang,{style:'currency',currency:'GBP'}).format(n);
+
+function chrome(){
+  $('#rail').innerHTML='<div class="u-logo">Uni<b>Verse</b><small>-OS</small></div>'+TABS.map(([k,i])=>'<a href="#'+k+'" class="'+(st.view===k?'act':'')+'"><span>'+i+'</span>'+t(k)+'</a>').join('');
+  $('#tabs').innerHTML=TABS.filter(x=>x[0]!=='setup').map(([k,i])=>'<a href="#'+k+'" class="'+(st.view===k?'act':'')+'"><span>'+i+'</span><small>'+t(k).split(' ')[0]+'</small></a>').join('');
+}
+
+const V={
+home(m){
+  const tiles=TABS.filter(x=>!['home','setup'].includes(x[0]));
+  m.innerHTML='<section class="hero"><h1>'+t('welcomeTitle')+'</h1><p>'+t('welcomeSub')+'</p><form class="u-ai" id="hai"><span>✦</span><input id="hq" placeholder="'+t('askAI')+'"><button>➤</button></form></section>'+
+   '<div class="mods">'+tiles.map(([k,i])=>'<a class="mod" href="#'+k+'"><span>'+i+'</span>'+t(k)+'</a>').join('')+'</div>'+
+   '<div class="grid g2" style="margin-top:1.2rem"><div class="card"><h3>💬 '+t('social')+'</h3>'+(S.posts.slice(0,3).map(p=>'<div class="mini"><b>'+esc(p.author)+'</b> '+esc((p.text||'').slice(0,90))+'</div>').join('')||'<div class="muted">'+t('noPosts')+'</div>')+'</div>'+
+   '<div class="card"><h3>🛒 '+t('market')+'</h3>'+(S.listings.filter(l=>!l.sold).slice(0,3).map(l=>'<div class="mini"><b>'+money(l.price)+'</b> · '+esc(l.title)+'</div>').join('')||'<div class="muted">'+t('noListings')+'</div>')+'</div></div>';
+  $('#hai').onsubmit=e=>{ e.preventDefault(); const q=$('#hq').value.trim(); if(q){ st.pending=q; location.hash='ai'; } };
+},
+social(m){
+  m.innerHTML='<div class="card compose"><div class="row" style="align-items:flex-start">'+avatar(me(),S.profile.avatar)+'<textarea id="pt" rows="2" placeholder="'+t('whatsNew')+'" style="flex:1"></textarea></div><div class="thumbs" id="pth"></div><div class="row between" style="margin-top:.5rem"><label class="btn ghost sm">📷 '+t('addPhoto')+'<input type="file" id="pp" accept="image/*" multiple hidden></label><button class="btn" id="pgo">'+t('post')+'</button></div></div><div id="feed"></div>';
+  let photos=[];
+  $('#pp').onchange=async e=>{ for(const f of e.target.files){ const d=await resizeImage(f,1200); photos.push(d); $('#pth').insertAdjacentHTML('beforeend','<img src="'+d+'">'); } e.target.value=''; };
+  $('#pgo').onclick=()=>{ const tx=$('#pt').value.trim(); if(!tx&&!photos.length) return; S.posts.unshift({id:uid(),author:me(),avatar:S.profile.avatar,text:tx,photos,at:Date.now(),likes:0,liked:false,comments:[]}); Store.save('posts'); V.social(m); };
+  const feed=$('#feed');
+  feed.innerHTML=S.posts.length?S.posts.map(p=>'<article class="card post" data-id="'+p.id+'"><div class="row">'+avatar(p.author,p.avatar)+'<div style="flex:1"><b>'+esc(p.author)+'</b><div class="muted small">'+fmtDate(p.at)+'</div></div><button class="btn sm ghost" data-del>✕</button></div>'+(p.text?'<p class="ptext">'+esc(p.text).replace(/\n/g,'<br>')+'</p>':'')+(p.photos&&p.photos.length?'<div class="pgrid n'+Math.min(p.photos.length,4)+'">'+p.photos.slice(0,4).map(s=>'<img src="'+s+'">').join('')+'</div>':'')+
+    '<div class="row acts"><button class="act'+(p.liked?' on':'')+'" data-like>♥ '+(p.likes||0)+'</button><button class="act" data-cm>💬 '+(p.comments||[]).length+'</button><button class="act" data-sh>↗ '+t('share')+'</button></div>'+
+    '<div class="cms">'+(p.comments||[]).map(c=>'<div class="cm"><b>'+esc(c.author)+'</b> '+esc(c.text)+'</div>').join('')+'<form class="row cf"><input placeholder="'+t('writeComment')+'" style="flex:1"><button class="btn sm">'+t('send')+'</button></form></div></article>').join(''):'<div class="empty">'+t('noPosts')+'</div>';
+  $$('.post',feed).forEach(el=>{ const p=S.posts.find(x=>x.id===el.dataset.id);
+    el.querySelector('[data-like]').onclick=()=>{ p.liked=!p.liked; p.likes=(p.likes||0)+(p.liked?1:-1); Store.save('posts'); V.social(m); };
+    el.querySelector('[data-cm]').onclick=()=>el.querySelector('.cf input').focus();
+    el.querySelector('[data-sh]').onclick=()=>copyText(p.author+': '+(p.text||''));
+    el.querySelector('[data-del]').onclick=async()=>{ if(!await confirmBox(t('delete')+'?')) return; S.posts=S.posts.filter(x=>x.id!==p.id); Store.save('posts'); V.social(m); };
+    el.querySelector('.cf').onsubmit=e=>{ e.preventDefault(); const v=e.target.querySelector('input').value.trim(); if(!v) return; (p.comments=p.comments||[]).push({author:me(),text:v,at:Date.now()}); Store.save('posts'); V.social(m); };
+  });
+},
+async tv(m){
+  m.innerHTML='<div class="player card" id="pl"><div class="empty">📺 '+t('myChannel')+'</div></div><div class="row between" style="margin:1rem 0 .4rem"><h3 style="margin:0">'+t('myChannel')+'</h3><label class="btn">＋ '+t('addVideo')+'<input type="file" id="vu" accept="video/*" multiple hidden></label></div><p class="muted small">'+t('videoLocal')+'</p><div class="grid g4" id="vl"></div><h3 style="margin-top:1.6rem">'+t('liveTV')+'</h3><div class="grid g4">'+CHANNELS.map(c=>'<a class="card chan" href="'+c[1]+'" target="_blank" rel="noopener"><b>'+esc(c[0])+'</b><span class="muted small">↗</span></a>').join('')+'</div>';
+  const urls=st.urls=st.urls||{};
+  const draw=async()=>{ const vids=await VDB.all(); vids.sort((a,b)=>b.at-a.at);
+    $('#vl').innerHTML=vids.length?vids.map(v=>'<div class="card vid" data-id="'+v.id+'"><div class="vthumb">▶</div><div class="small fn">'+esc(v.name)+'</div><div class="muted small">'+(v.w?v.w+'×'+v.h+' · ':'')+Math.round(v.size/1048576)+' MB</div><button class="btn sm ghost" data-x="'+v.id+'">✕</button></div>').join(''):'<div class="empty" style="grid-column:1/-1">'+t('noVideos')+'</div>';
+    $$('.vid').forEach(c=>c.onclick=e=>{ if(e.target.dataset.x) return; play(vids.find(v=>v.id===c.dataset.id)); });
+    $$('[data-x]').forEach(b=>b.onclick=async()=>{ await VDB.del(b.dataset.x); draw(); }); };
+  const qlabel=(w,h)=>{ const p=Math.min(w,h); return p>=4320?'8K':p>=2160?'4K UHD':p>=1440?'QHD':p>=1080?'Full HD':p>=720?'HD':'SD'; };
+  const play=v=>{ if(!urls[v.id]) urls[v.id]=URL.createObjectURL(v.blob);
+    $('#pl').innerHTML='<video id="vp" src="'+urls[v.id]+'" controls autoplay playsinline></video><div class="row between" style="padding:.6rem .2rem 0"><b>'+esc(v.name)+'</b><span class="badge q" id="vq"></span></div>';
+    const vp=$('#vp'); vp.onloadedmetadata=async()=>{ $('#vq').textContent=t('quality')+': '+qlabel(vp.videoWidth,vp.videoHeight)+' ('+vp.videoWidth+'×'+vp.videoHeight+')'; if(!v.w){ v.w=vp.videoWidth; v.h=vp.videoHeight; await VDB.put(v); } };
+    vp.onerror=()=>toast('This video format is not supported by this browser');
+    window.scrollTo({top:0,behavior:'smooth'}); };
+  $('#vu').onchange=async e=>{ for(const f of e.target.files){ const ok=await VDB.put({id:uid(),name:f.name,size:f.size,blob:f,at:Date.now()}); if(!ok) toast('Could not store '+f.name+' (device storage)'); } e.target.value=''; draw(); };
+  draw();
+},
+learn(m){
+  const all=BUILTIN_COURSES.concat(S.courses);
+  m.innerHTML='<div class="card"><h3>✨ '+t('newCourse')+'</h3><form class="row" id="cf"><input id="ct" placeholder="'+t('topic')+'" style="flex:1"><button class="btn" id="cg">'+t('generate')+'</button></form><div id="cst" class="muted small" style="margin-top:.4rem"></div></div><h3 style="margin-top:1.2rem">'+t('courses')+'</h3><div class="grid g3">'+all.map(c=>{ const pr=S.progress[c.id]||{}; const done=(pr.done||[]).length, tot=c.lessons.length; return '<div class="card course" data-id="'+c.id+'"><div class="cbanner">🎓</div><b>'+esc(c.title)+'</b><div class="muted small">'+tot+' '+t('lesson').toLowerCase()+' · '+c.quiz.length+' Q'+(pr.score!=null?' · '+t('score')+' '+pr.score+'%':'')+'</div><div class="bar"><i style="width:'+Math.round(done/tot*100)+'%"></i></div></div>'; }).join('')+'</div>';
+  $$('.course').forEach(c=>c.onclick=()=>openCourse(all.find(x=>x.id===c.dataset.id)));
+  $('#cf').onsubmit=async e=>{ e.preventDefault(); const topic=$('#ct').value.trim(); if(!topic) return; $('#cg').disabled=true; $('#cst').textContent=t('thinking');
+    const lang=LANGS[I18N.lang]||'English';
+    const r=await askAI('Create a short beginner course about "'+topic+'" in '+lang+'. Return ONLY JSON: {"title":string,"lessons":[{"title":string,"body":string (120-200 words)}] (4 lessons),"quiz":[{"q":string,"o":[4 strings],"a":index of correct option}] (5 questions)}', x=>{ $('#cst').textContent=t('thinking')+' '+x.length+' chars'; });
+    $('#cg').disabled=false;
+    if(!r){ $('#cst').textContent=t('aiNeeds'); return; }
+    try{ const j=JSON.parse(r.slice(r.indexOf('{'),r.lastIndexOf('}')+1)); if(!j.lessons||!j.quiz) throw 0; j.id=uid(); S.courses.unshift(j); Store.save('courses'); V.learn(m); toast('✔ '+j.title); }
+    catch(er){ $('#cst').textContent='Could not build the course — try again.'; } };
+  function openCourse(c){
+    const pr=S.progress[c.id]=S.progress[c.id]||{done:[]};
+    modal('<h2>🎓 '+esc(c.title)+'</h2>'+c.lessons.map((l,i)=>'<details class="lesson"'+(i===0?' open':'')+'><summary>'+((pr.done||[]).includes(i)?'✅':'○')+' '+t('lesson')+' '+(i+1)+': '+esc(l.title)+'</summary><p>'+esc(l.body).replace(/\n/g,'<br>')+'</p><button class="btn sm" data-done="'+i+'">'+t('complete')+'</button></details>').join('')+
+      '<h3 style="margin-top:1.2rem">📝 '+t('quiz')+'</h3>'+c.quiz.map((q,i)=>'<div class="qz"><b>'+(i+1)+'. '+esc(q.q)+'</b>'+q.o.map((o,j)=>'<label class="opt"><input type="radio" name="q'+i+'" value="'+j+'"> '+esc(o)+'</label>').join('')+'</div>').join('')+
+      '<div class="row between"><b id="qs"></b><div class="row">'+(c.builtin?'':'<button class="btn ghost sm" id="cdel">'+t('delete')+'</button>')+'<button class="btn" id="qc">'+t('checkAns')+'</button></div></div>',(el,close)=>{
+      $$('[data-done]',el).forEach(b=>b.onclick=()=>{ const i=+b.dataset.done; if(!pr.done.includes(i)) pr.done.push(i); Store.save('progress'); b.closest('details').querySelector('summary').firstChild.textContent='✅ '+t('lesson')+' '+(i+1)+': '+c.lessons[i].title; const nx=b.closest('details').nextElementSibling; b.closest('details').open=false; if(nx&&nx.tagName==='DETAILS') nx.open=true; });
+      el.querySelector('#qc').onclick=()=>{ let ok=0; c.quiz.forEach((q,i)=>{ const s=el.querySelector('input[name="q'+i+'"]:checked'); $$('input[name="q'+i+'"]',el).forEach(inp=>{ inp.parentElement.className='opt'+(+inp.value===q.a?' right':(inp.checked?' wrong':'')); }); if(s&&+s.value===q.a) ok++; }); pr.score=Math.round(ok/c.quiz.length*100); Store.save('progress'); el.querySelector('#qs').textContent=t('score')+': '+ok+'/'+c.quiz.length+' ('+pr.score+'%)'; };
+      const d=el.querySelector('#cdel'); if(d) d.onclick=()=>{ S.courses=S.courses.filter(x=>x.id!==c.id); Store.save('courses'); close(); V.learn(m); };
+    });
+  }
+},
+market(m){
+  st.mf=st.mf||{q:'',cat:'',tab:'all'};
+  const f=st.mf;
+  let l=S.listings.slice().sort((a,b)=>b.at-a.at);
+  if(f.tab==='fav') l=l.filter(x=>S.favs.includes(x.id)); if(f.tab==='mine') l=l.filter(x=>x.mine);
+  if(f.cat) l=l.filter(x=>x.cat===f.cat); if(f.q) l=l.filter(x=>(x.title+x.desc+x.loc).toLowerCase().includes(f.q.toLowerCase()));
+  m.innerHTML='<div class="row between"><div class="seg">'+[['all',t('all')],['fav','♥ '+t('favourites')],['mine',t('mine')]].map(x=>'<label><input type="radio" name="mt" value="'+x[0]+'"'+(f.tab===x[0]?' checked':'')+'><span>'+x[1]+'</span></label>').join('')+'</div><button class="btn" id="sell">＋ '+t('sell')+'</button></div><div class="row" style="margin:.8rem 0"><input id="mq" placeholder="'+t('search')+'" value="'+esc(f.q)+'" style="max-width:320px"><select id="mc" style="max-width:220px"><option value="">'+t('category')+'</option>'+CATS.map(c=>'<option'+(f.cat===c?' selected':'')+'>'+c+'</option>').join('')+'</select></div>'+
+   (l.length?'<div class="grid g4">'+l.map(x=>'<div class="card listing" data-id="'+x.id+'">'+(x.photos&&x.photos[0]?'<img src="'+x.photos[0]+'">':'<div class="lph">🛍</div>')+(x.sold?'<span class="soldtag">'+t('sold')+'</span>':'')+'<b class="lp">'+money(x.price)+'</b><div>'+esc(x.title)+'</div><div class="muted small">'+esc(x.loc||'')+'</div></div>').join('')+'</div>':'<div class="empty">'+t('noListings')+'</div>');
+  $$('input[name=mt]').forEach(r=>r.onchange=()=>{ f.tab=r.value; V.market(m); });
+  $('#mq').onchange=e=>{ f.q=e.target.value; V.market(m); };
+  $('#mc').onchange=e=>{ f.cat=e.target.value; V.market(m); };
+  $('#sell').onclick=()=>editListing();
+  $$('.listing').forEach(c=>c.onclick=()=>view(S.listings.find(x=>x.id===c.dataset.id)));
+  function editListing(x){ const isNew=!x; x=x||{photos:[]};
+    modal('<h3>'+t('sell')+'</h3><div class="field"><label>'+t('title')+' *</label><input id="lt" value="'+esc(x.title||'')+'"></div><div class="grid g2"><div class="field"><label>'+t('price')+' (£) *</label><input id="lpr" type="number" min="0" step="0.01" value="'+esc(x.price||'')+'"></div><div class="field"><label>'+t('category')+'</label><select id="lc">'+CATS.map(c=>'<option'+(x.cat===c?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div class="field"><label>'+t('condition')+'</label><select id="lco">'+['New','Like new','Good','Fair'].map(c=>'<option'+(x.cond===c?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div class="field"><label>'+t('location')+'</label><input id="ll" value="'+esc(x.loc||'')+'"></div></div><div class="field"><label>'+t('description')+'</label><textarea id="ld" rows="4">'+esc(x.desc||'')+'</textarea><button type="button" class="btn sm ghost" id="lai" style="margin-top:.4rem">✨ AI</button></div><div class="field"><label>'+t('photos')+'</label><input type="file" id="lph" accept="image/*" multiple><div class="thumbs" id="lth">'+x.photos.map(s=>'<img src="'+s+'">').join('')+'</div></div><div class="row end"><button class="btn" id="ls">'+t('save')+'</button></div>',(el,close)=>{
+      const photos=x.photos.slice();
+      el.querySelector('#lph').onchange=async e=>{ for(const fl of e.target.files){ const d=await resizeImage(fl,1000); photos.push(d); el.querySelector('#lth').insertAdjacentHTML('beforeend','<img src="'+d+'">'); } };
+      el.querySelector('#lai').onclick=async()=>{ const ti=el.querySelector('#lt').value; if(!ti) return; const b=el.querySelector('#lai'); b.disabled=true; const r=await askAI('Write a short, honest marketplace listing description (max 70 words) in '+(LANGS[I18N.lang]||'English')+' for: '+ti+' (condition: '+el.querySelector('#lco').value+'). No preamble.', x=>el.querySelector('#ld').value=x); if(!r) toast(t('aiNeeds')); b.disabled=false; };
+      el.querySelector('#ls').onclick=()=>{ const ti=el.querySelector('#lt').value.trim(), pr=parseFloat(el.querySelector('#lpr').value); if(!ti||!(pr>=0)){ toast(t('title')+' / '+t('price')); return; }
+        Object.assign(x,{title:ti,price:Math.round(pr*100)/100,cat:el.querySelector('#lc').value,cond:el.querySelector('#lco').value,loc:el.querySelector('#ll').value.trim(),desc:el.querySelector('#ld').value.trim(),photos});
+        if(isNew){ x.id=uid(); x.at=Date.now(); x.mine=true; x.seller=me(); S.listings.push(x); } Store.save('listings'); close(); V.market(m); }; }); }
+  function view(x){ const fav=S.favs.includes(x.id);
+    modal((x.photos.length?'<div class="gal">'+x.photos.map(s=>'<img src="'+s+'">').join('')+'</div>':'')+'<h2>'+esc(x.title)+'</h2><div class="lp big">'+money(x.price)+'</div><div class="muted small">'+esc([x.cat,x.cond,x.loc,x.seller].filter(Boolean).join(' · '))+' · '+fmtDate(x.at)+'</div><p>'+esc(x.desc||'').replace(/\n/g,'<br>')+'</p><div class="row end"><button class="btn ghost" id="lf">'+(fav?'♥':'♡')+' '+t('favourites')+'</button>'+(x.mine?'<button class="btn ghost" id="le">✎</button><button class="btn ghost" id="lx">'+t('delete')+'</button>'+(!x.sold?'<button class="btn" id="lsd">'+t('markSold')+'</button>':''):(!x.sold?'<button class="btn" id="lb">'+t('buy')+'</button>':''))+'</div>',(el,close)=>{
+      el.querySelector('#lf').onclick=()=>{ if(fav) S.favs=S.favs.filter(i=>i!==x.id); else S.favs.push(x.id); Store.save('favs'); close(); V.market(m); };
+      const g=id=>el.querySelector(id);
+      if(g('#le')) g('#le').onclick=()=>{ close(); editListing(x); };
+      if(g('#lx')) g('#lx').onclick=()=>{ S.listings=S.listings.filter(i=>i.id!==x.id); Store.save('listings'); close(); V.market(m); };
+      if(g('#lsd')) g('#lsd').onclick=()=>{ x.sold=true; Store.save('listings'); close(); V.market(m); };
+      if(g('#lb')) g('#lb').onclick=()=>{ if(x.price>S.wallet.balance){ toast(t('insufficient')); return; } S.wallet.balance=Math.round((S.wallet.balance-x.price)*100)/100; S.wallet.tx.push({who:x.seller||x.title,amt:-x.price,note:x.title,at:Date.now()}); x.sold=true; Store.save('wallet'); Store.save('listings'); close(); toast('✔ '+t('buy')); V.market(m); };
+    }); }
+},
+wallet(m){
+  m.innerHTML='<div class="paycard"><div class="small">UniVerse Pay</div><div class="bal">'+money(S.wallet.balance)+'</div><div class="small">'+t('balance')+' · GBP</div></div><p class="muted small">🔒 '+t('payDemo')+'</p><div class="row"><button class="btn" data-k="send">↗ '+t('sendMoney')+'</button><button class="btn ghost" data-k="top">＋ '+t('topUp')+'</button></div><h3 style="margin-top:1.2rem">'+t('history')+'</h3>'+(S.wallet.tx.slice().reverse().map(x=>'<div class="txr"><span>'+(x.amt<0?'↗':'↙')+'</span><span style="flex:1">'+esc(x.who)+'<div class="muted small">'+esc(x.note||'')+' '+fmtDate(x.at)+'</div></span><b class="'+(x.amt<0?'neg':'pos')+'">'+money(x.amt)+'</b></div>').join('')||'<div class="muted">—</div>');
+  $$('[data-k]').forEach(b=>b.onclick=()=>{ const k=b.dataset.k;
+    modal('<h3>'+(k==='send'?t('sendMoney'):t('topUp'))+'</h3>'+(k==='send'?'<div class="field"><label>'+t('to')+'</label><input id="pw"></div>':'')+'<div class="field"><label>'+t('amount')+'</label><input id="pa" type="number" min="0.01" step="0.01"></div><div class="field"><label>'+t('note')+'</label><input id="pn"></div><div class="row end"><button class="btn" id="pgo">'+t('confirm')+'</button></div>',(el,close)=>{
+      el.querySelector('#pgo').onclick=()=>{ const a=Math.round(parseFloat(el.querySelector('#pa').value)*100)/100; if(!(a>0)) return; const note=el.querySelector('#pn').value.trim();
+        if(k==='send'){ if(a>S.wallet.balance){ toast(t('insufficient')); return; } S.wallet.balance-=a; S.wallet.tx.push({who:el.querySelector('#pw').value.trim()||'—',amt:-a,note,at:Date.now()}); }
+        else { S.wallet.balance+=a; S.wallet.tx.push({who:t('topUp'),amt:a,note,at:Date.now()}); }
+        S.wallet.balance=Math.round(S.wallet.balance*100)/100; Store.save('wallet'); close(); V.wallet(m); }; }); });
+},
+ai(m){
+  m.innerHTML='<div class="card"><div class="chat" id="chat"></div><form class="u-ai in" id="af"><span>✦</span><input id="ain" placeholder="'+t('askAI')+'" autocomplete="off"><button>➤</button></form><button class="btn ghost sm" id="aclr" style="margin-top:.5rem">'+t('clear')+'</button></div>';
+  const draw=()=>{ $('#chat').innerHTML=S.chat.map(x=>'<div class="msg '+(x.role==='user'?'me':'bot')+'">'+esc(x.content)+'</div>').join('')||'<div class="muted">✦ '+t('askAI')+'</div>'; $('#chat').scrollTop=1e9; };
+  draw();
+  const ask=async q=>{ S.chat.push({role:'user',content:q}); draw(); const el=document.createElement('div'); el.className='msg bot'; el.textContent=t('thinking'); $('#chat').appendChild(el);
+    const hist=S.chat.slice(-12).map(x=>({role:x.role,content:x.content}));
+    hist[0]={role:'user',content:'You are UniVerse AI, the assistant inside UniVerse-OS — a super-app for social, TV & entertainment, education, marketplace and payments. Be warm, helpful and concise. Reply in the language the user writes in.\n\n'+hist[0].content};
+    let a=await askAI(hist.length===1?hist[0].content:hist, x=>{ el.textContent=x; $('#chat').scrollTop=1e9; });
+    S.chat.push({role:'assistant',content:a||t('aiNeeds')}); S.chat=S.chat.slice(-60); Store.save('chat'); draw(); };
+  $('#af').onsubmit=e=>{ e.preventDefault(); const q=$('#ain').value.trim(); if(q){ $('#ain').value=''; ask(q); } };
+  $('#aclr').onclick=()=>{ S.chat=[]; Store.save('chat'); draw(); };
+  if(st.pending){ const q=st.pending; st.pending=null; ask(q); }
+},
+setup(m){
+  m.innerHTML='<div class="grid g2"><div class="card"><h3>'+t('profile')+'</h3><div class="row">'+avatar(me(),S.profile.avatar,64)+'<label class="btn ghost sm">'+t('avatar')+'<input type="file" id="av" accept="image/*" hidden></label></div><div class="field" style="margin-top:.8rem"><label>'+t('displayName')+'</label><input id="pn" value="'+esc(S.profile.name)+'"></div><div class="field"><label>'+t('bio')+'</label><textarea id="pb" rows="2">'+esc(S.profile.bio)+'</textarea></div><button class="btn" id="ps">'+t('save')+'</button></div>'+
+   '<div class="card"><h3>🌍 '+t('language')+'</h3><select id="sl">'+langOptions(I18N.lang)+'</select><button class="btn ghost sm" id="sdev" style="margin-top:.6rem">'+t('followDevice')+'</button><div class="muted small" style="margin-top:.4rem">✨ = translated by AI on first use</div><h3 style="margin-top:1.2rem">💾 Backup</h3><div class="row"><button class="btn ghost" id="ex">⬇ '+t('exportData')+'</button><label class="btn ghost">⬆ '+t('importData')+'<input type="file" id="im" accept=".json" hidden></label></div><button class="btn danger sm" id="rs" style="margin-top:1rem">'+t('resetData')+'</button></div>'+
+   '<div class="card"><h3>UniVerse-OS™</h3><div class="small muted">Version 1.0 · © '+new Date().getFullYear()+' Saimir Neziri. All rights reserved. Proprietary software.</div></div></div>';
+  let av=S.profile.avatar;
+  $('#av').onchange=async e=>{ av=await resizeImage(e.target.files[0],256); S.profile.avatar=av; Store.save('profile'); V.setup(m); };
+  $('#ps').onclick=()=>{ S.profile.name=$('#pn').value.trim(); S.profile.bio=$('#pb').value.trim(); Store.save('profile'); toast(t('saved')); };
+  $('#sl').onchange=async e=>{ await applyLang(e.target.value,S.settings,()=>Store.save('settings')); route(); };
+  $('#sdev').onclick=async()=>{ S.settings.lang=null; await applyLang(deviceLang(S.settings),S.settings,()=>Store.save('settings')); route(); };
+  $('#ex').onclick=()=>{ const o={}; Store.keys.forEach(k=>o[k]=S[k]); downloadFile('universe-backup.json',JSON.stringify(o)); };
+  $('#im').onchange=async e=>{ try{ const d=JSON.parse(await e.target.files[0].text()); Store.keys.forEach(k=>{ if(d[k]!==undefined){ S[k]=d[k]; Store.save(k);} }); route(); }catch(er){ toast('Invalid file'); } };
+  $('#rs').onclick=async()=>{ if(!await confirmBox(t('resetData')+'?')) return; Object.keys(DEFAULTS).forEach(k=>{ S[k]=JSON.parse(JSON.stringify(DEFAULTS[k])); Store.save(k); }); route(); };
+}
+};
+
+function route(){ const h=(location.hash||'#home').slice(1); st.view=V[h]?h:'home'; chrome(); $('#main').className='v-'+st.view; V[st.view]($('#main')); window.scrollTo(0,0); }
+(async function(){
+  S=await Store.init('uni',DEFAULTS);
+  await applyLang(deviceLang(S.settings),S.settings,()=>Store.save('settings'));
+  netBadge($('#net'));
+  window.addEventListener('hashchange',route);
+  Store.onCloud(async()=>{ await applyLang(deviceLang(S.settings),S.settings); route(); });
+  route();
+})();
+
+</script>
+</body>
+</html>
