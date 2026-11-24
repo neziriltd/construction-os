@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UniVerse-OS — Everything you love. One UniVerse.</title>
 <meta name="description" content="UniVerse-OS — one super-app for social, TV & entertainment, education, marketplace, payments and AI, on every screen.">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="UniVerse-OS">
 <meta name="theme-color" content="#0b0820">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -685,5 +691,7 @@ function route(){ const h=(location.hash||'#home').slice(1); st.view=V[h]?h:'hom
 })();
 
 </script>
+<script src="/install.js" data-accent="#7c5cff" data-name="UniVerse-OS" defer></script>
+<script>if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})});</script>
 </body>
 </html>
