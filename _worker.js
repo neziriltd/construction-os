@@ -7,6 +7,67 @@
    © 2026 Saimir Neziri. All rights reserved. */
 /* Owner recovery key fingerprint (SHA-256). The key itself is never stored here. Replace by setting a secret OWNER_RECOVERY_HASH in Cloudflare. */
 const OWNER_RECOVERY_HASH = 'b588e502bc7e5d2326f247b4ec83fdd3594b0584e95565618b8d1a95dc21cb9c';
+/* ---------- Passkeys (Face ID, Touch ID, fingerprint, Windows Hello) – WebAuthn checks, no extra libraries ----------
+   © 2026 Saimir Neziri. All rights reserved. */
+const PK = (() => {
+  const te = new TextEncoder();
+  const b64u = b => { let s = ''; const a = new Uint8Array(b); for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+  const unb64u = s => { s = String(s).replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const r = atob(s); const a = new Uint8Array(r.length); for (let i = 0; i < r.length; i++) a[i] = r.charCodeAt(i); return a; };
+  const sha = async b => new Uint8Array(await crypto.subtle.digest('SHA-256', b));
+  const eq = (a, b) => { if (a.length !== b.length) return false; let x = 0; for (let i = 0; i < a.length; i++) x |= a[i] ^ b[i]; return x === 0; };
+  const rand = n => b64u(crypto.getRandomValues(new Uint8Array(n)));
+  // minimal CBOR decoder (enough for WebAuthn)
+  function cbor(buf) { const a = new Uint8Array(buf); let p = 0;
+    const len = ai => { if (ai < 24) return ai; if (ai === 24) return a[p++]; if (ai === 25) { const v = (a[p] << 8) | a[p + 1]; p += 2; return v; } if (ai === 26) { const v = ((a[p] << 24) >>> 0) + (a[p + 1] << 16) + (a[p + 2] << 8) + a[p + 3]; p += 4; return v; } throw new Error('cbor length'); };
+    const item = () => { const b = a[p++]; const mt = b >> 5, ai = b & 31;
+      if (mt === 0) return len(ai); if (mt === 1) return -1 - len(ai);
+      if (mt === 2) { const n = len(ai); const v = a.slice(p, p + n); p += n; return v; }
+      if (mt === 3) { const n = len(ai); const v = new TextDecoder().decode(a.slice(p, p + n)); p += n; return v; }
+      if (mt === 4) { const n = len(ai); const v = []; for (let i = 0; i < n; i++) v.push(item()); return v; }
+      if (mt === 5) { const n = len(ai); const v = new Map(); for (let i = 0; i < n; i++) { const k = item(); v.set(k, item()); } return v; }
+      if (mt === 7) { if (ai === 20) return false; if (ai === 21) return true; if (ai === 22) return null; }
+      throw new Error('cbor type'); };
+    const v = item(); return { v, end: p }; }
+  function authData(ad) { ad = new Uint8Array(ad); if (ad.length < 37) throw new Error('authData too short');
+    const out = { rpIdHash: ad.slice(0, 32), flags: ad[32], count: ((ad[33] << 24) >>> 0) + (ad[34] << 16) + (ad[35] << 8) + ad[36] };
+    if (out.flags & 0x40) { const n = (ad[53] << 8) | ad[54]; out.credId = ad.slice(55, 55 + n); const c = cbor(ad.slice(55 + n)); out.cose = c.v; }
+    return out; }
+  function coseJwk(m) { const kty = m.get(1), alg = m.get(3);
+    if (kty === 2 && alg === -7) return { alg: -7, jwk: { kty: 'EC', crv: 'P-256', x: b64u(m.get(-2)), y: b64u(m.get(-3)), ext: true } };
+    if (kty === 3 && alg === -257) return { alg: -257, jwk: { kty: 'RSA', n: b64u(m.get(-1)), e: b64u(m.get(-2)), alg: 'RS256', ext: true } };
+    throw new Error('This passkey type is not supported'); }
+  function derToRaw(sig) { sig = new Uint8Array(sig); if (sig[0] !== 0x30) return sig; let p = 2; if (sig[1] & 0x80) p = 2 + (sig[1] & 0x7f);
+    const part = () => { if (sig[p] !== 0x02) throw new Error('bad sig'); const n = sig[p + 1]; let v = sig.slice(p + 2, p + 2 + n); p += 2 + n; while (v.length > 32 && v[0] === 0) v = v.slice(1); const o = new Uint8Array(32); o.set(v, 32 - v.length); return o; };
+    const r = part(), s = part(); const out = new Uint8Array(64); out.set(r); out.set(s, 32); return out; }
+  function client(cdj, type, challenge, origin) { const c = JSON.parse(new TextDecoder().decode(unb64u(cdj)));
+    if (c.type !== type) throw new Error('Wrong passkey step'); if (c.challenge !== challenge) throw new Error('This passkey request has expired – try again');
+    if (c.origin !== origin) throw new Error('Passkey made for a different website'); return c; }
+  /** Check a new passkey. Returns { id, jwk, alg } to store. */
+  async function verifyRegistration(cred, challenge, origin, rpId) {
+    client(cred.response.clientDataJSON, 'webauthn.create', challenge, origin);
+    const att = cbor(unb64u(cred.response.attestationObject)).v; const ad = authData(att.get('authData'));
+    if (!eq(ad.rpIdHash, await sha(te.encode(rpId)))) throw new Error('Passkey made for a different website');
+    if (!(ad.flags & 1)) throw new Error('The passkey was not confirmed on the device');
+    if (!ad.credId || !ad.cose) throw new Error('No passkey was returned');
+    const k = coseJwk(ad.cose); return { id: b64u(ad.credId), jwk: k.jwk, alg: k.alg };
+  }
+  /** Check a sign-in with a stored passkey { jwk, alg }. Throws if it is not valid. */
+  async function verifyAssertion(cred, stored, challenge, origin, rpId) {
+    const cdBytes = unb64u(cred.response.clientDataJSON); client(cred.response.clientDataJSON, 'webauthn.get', challenge, origin);
+    const adBytes = unb64u(cred.response.authenticatorData); const ad = authData(adBytes);
+    if (!eq(ad.rpIdHash, await sha(te.encode(rpId)))) throw new Error('Passkey made for a different website');
+    if (!(ad.flags & 1)) throw new Error('The passkey was not confirmed on the device');
+    const data = new Uint8Array(adBytes.length + 32); data.set(adBytes); data.set(await sha(cdBytes), adBytes.length);
+    const sig = unb64u(cred.response.signature); let ok;
+    if (stored.alg === -7) { const key = await crypto.subtle.importKey('jwk', stored.jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']); ok = await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, derToRaw(sig), data); }
+    else { const key = await crypto.subtle.importKey('jwk', stored.jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']); ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, sig, data); }
+    if (!ok) throw new Error('Passkey check failed');
+    return true;
+  }
+  const site = req => { const u = new URL(req.url); return { origin: u.origin, rpId: u.hostname }; };
+  return { b64u, unb64u, rand, verifyRegistration, verifyAssertion, site };
+})();
+
 const LEVELS = { owner: 5, admin: 4, member: 3, crew: 2, viewer: 1 };
 const LEVEL_NAMES = { owner: 'Owner', admin: 'Administrator', member: 'Manager', crew: 'Site operative', viewer: 'View only' };
 const enc = new TextEncoder();
@@ -42,7 +103,7 @@ const activeOK = u => u.status === 'active' && !(u.until && u.until < new Date()
 const rank = u => LEVELS[u && u.level] || 0;
 const loginKey = s => String(s || '').trim().toLowerCase();
 const findLogin = (A, l) => { l = loginKey(l); return Object.values(A.users).find(u => u.login === l) || null; };
-const pub = (A, u) => ({ id: u.id, login: u.login, name: u.name, level: u.level, levelName: LEVEL_NAMES[u.level], status: u.status, until: u.until || '', org: u.org || '', orgType: u.orgType || '', dept: u.dept || '', job: u.job || '', phone: u.phone || '', mustChange: !!u.mustChange, mfa: !!u.mfa, mustMfa: !!(POL(A).mfaAdmins && LEVELS[u.level] >= 4 && !u.mfa), createdAt: u.createdAt, lastLogin: u.lastLogin || null, backupLeft: (u.backup || []).length });
+const pub = (A, u) => ({ id: u.id, login: u.login, name: u.name, level: u.level, levelName: LEVEL_NAMES[u.level], status: u.status, until: u.until || '', org: u.org || '', orgType: u.orgType || '', dept: u.dept || '', job: u.job || '', phone: u.phone || '', mustChange: !!u.mustChange, mfa: !!u.mfa, mustMfa: !!(POL(A).mfaAdmins && LEVELS[u.level] >= 4 && !u.mfa), createdAt: u.createdAt, lastLogin: u.lastLogin || null, backupLeft: (u.backup || []).length, passkeys: (u.passkeys || []).map(k => ({ id: k.id, name: k.name, at: k.at, used: k.used || null })) });
 function audit(A, by, action, who, detail) { A.audit.unshift({ at: Date.now(), by: by ? (by.name || by.login) : 'System', action, who: who || '', detail: detail || '' }); }
 function canManage(me, target, level) { if (rank(me) < 4) return 'Only administrators can manage logins.'; if (target && target.level === 'owner' && me.id !== target.id) return 'The owner’s login can only be changed by the owner.'; if (level === 'owner') return 'There is only one owner.'; if ((level === 'admin' || (target && target.level === 'admin')) && me.level !== 'owner') return 'Only the owner can create or change administrators.'; return null; }
 function cleanProfile(d) { const s = (v, n) => String(v || '').trim().slice(0, n); return { name: s(d.name, 80), org: s(d.org, 120), orgType: s(d.orgType, 30), dept: s(d.dept, 80), job: s(d.job, 80), phone: s(d.phone, 40), until: /^\d{4}-\d{2}-\d{2}$/.test(d.until || '') ? d.until : '' }; }
@@ -219,14 +280,23 @@ async function api(req, env, url, parts, ctx) {
     const u = Object.assign({ id: 'u' + hex(rnd(6)), login, level: 'owner', status: 'active', mustChange: false, createdAt: Date.now(), lastLogin: Date.now() }, cleanProfile(d)); if (!u.name) u.name = login; await setPw(u, d.password); A.users[u.id] = u;
     if (d.company) { const cur = await db.prepare("SELECT data FROM docs WHERE path='config/main'").first(); await putDoc(db, 'config/main', Object.assign(cur ? JSON.parse(cur.data) : {}, { company: String(d.company).slice(0, 120) })); }
     const t = hex(rnd(32)); A.sessions[await tokHash(t)] = { uid: u.id, exp: Date.now() + 30 * 864e5 }; audit(A, u, 'set up Construction-OS', u.name); await save(); return J(200, { me: pub(A, u) }, setCookie(t, 30 * 86400)); }
+  const openSession = async (u, how) => { const now = Date.now(); const did = devOf(req); u.devices = u.devices || {}; const ua = String(req.headers.get('user-agent') || '').slice(0, 200); u.devices[did] = Object.assign(u.devices[did] || { first: now }, { ok: true, pending: false, ua, name: devName(ua), ip: ipOf(req), at: now });
+    delete A.fails['u:' + u.id]; u.lastLogin = now; const t = hex(rnd(32)); A.sessions[await tokHash(t)] = { uid: u.id, did, exp: now + 30 * 864e5, qrAt: how === 'QR code' ? now : undefined }; secLog(A, 'login', u, req, devName(ua) + ' (' + how + ')'); await save();
+    return J(200, { me: pub(A, u) }, { 'set-cookie': [setCookie(t, 30 * 86400)['set-cookie'], devCookie(did)] }); };
+  /* ---------- Face ID / fingerprint sign-in (passkeys) ---------- */
+  if (r === 'passkey' && (parts[2] === 'login-start' || parts[2] === 'login-finish') && req.method === 'POST') { const d = await body(req, 2e4); A.pkc = A.pkc || {}; const now = Date.now(); for (const [k, q] of Object.entries(A.pkc)) if (now - q.at > 5 * 60000) delete A.pkc[k]; const { origin, rpId } = PK.site(req);
+    if (parts[2] === 'login-start') { if (Object.keys(A.pkc).length > 300) return J(429, { error: 'Busy – try again in a minute.' }); const id = hex(rnd(9)), ch = PK.rand(32); A.pkc[id] = { ch, at: now }; await save(); return J(200, { id, options: { challenge: ch, rpId, timeout: 120000, userVerification: 'required' } }); }
+    const q = A.pkc[String(d.id || '')]; delete A.pkc[String(d.id || '')]; if (!q || !d.cred || !d.cred.id) { await save(); return J(400, { error: 'This request has expired – try again.' }); }
+    const u = Object.values(A.users).find(x => (x.passkeys || []).some(k => k.id === d.cred.id)); if (!u) { await save(); return J(401, { error: 'This passkey isn’t linked to any login here. Sign in with your password, then add Face ID / fingerprint in My account.' }); }
+    const k = u.passkeys.find(x => x.id === d.cred.id); try { await PK.verifyAssertion(d.cred, k, q.ch, origin, rpId); } catch (e) { secLog(A, 'fail', u, req, 'passkey: ' + e.message); await save(); return J(401, { error: e.message }); }
+    if (u.status !== 'active') { await save(); return J(403, { error: 'Your login is suspended – please speak to your administrator.' }); } if (!activeOK(u)) { await save(); return J(403, { error: 'Your access has ended – please speak to your administrator.' }); }
+    k.used = now; return openSession(u, 'Face ID / fingerprint'); }
   /* ---------- sign in with a QR code approved on a device that is already signed in ---------- */
   if (r === 'qr' && parts[2] !== 'approve' && req.method === 'POST') { const d = await body(req, 1e4); A.qr = A.qr || {}; const now = Date.now(); for (const [k, q] of Object.entries(A.qr)) if (now - q.at > 6 * 60000) delete A.qr[k];
     if (parts[2] === 'start') { if (Object.keys(A.qr).length > 200) return J(429, { error: 'Too many waiting – try again in a few minutes.' }); const id = hex(rnd(9)), sec = hex(rnd(24)); A.qr[id] = { sh: await tokHash(sec), at: now, ua: devName(String(req.headers.get('user-agent') || '')), ip: ipOf(req) }; await save(); return J(200, { id, secret: sec, ttl: 300 }); }
     if (parts[2] === 'poll') { const q = A.qr[String(d.id || '')]; if (!q || q.sh !== await tokHash(String(d.secret || ''))) return J(410, { error: 'This QR code has expired – make a new one.' });
       if (!q.uid) return J(200, { wait: true }); const u = A.users[q.uid]; delete A.qr[d.id]; if (!u || u.status !== 'active' || !activeOK(u)) { await save(); return J(403, { error: 'This login cannot be used.' }); }
-      const did = devOf(req); u.devices = u.devices || {}; const ua = String(req.headers.get('user-agent') || '').slice(0, 200); u.devices[did] = Object.assign(u.devices[did] || { first: now }, { ok: true, pending: false, ua, name: devName(ua), ip: ipOf(req), at: now });
-      delete A.fails['u:' + u.id]; u.lastLogin = now; const t = hex(rnd(32)); A.sessions[await tokHash(t)] = { uid: u.id, did, exp: now + 30 * 864e5, qrAt: now }; secLog(A, 'login', u, req, devName(ua) + ' (QR code)'); await save();
-      return J(200, { me: pub(A, u) }, { 'set-cookie': [setCookie(t, 30 * 86400)['set-cookie'], devCookie(did)] }); }
+      return openSession(u, 'QR code'); }
     return J(404, { error: 'Not found' }); }
   /* ---------- forgot password: owner recovery key, or a code from the person's authenticator app ---------- */
   if (r === 'recover' && req.method === 'POST') { const d = await body(req, 1e4); const ip = ipOf(req); const fk = 'rip:' + ip; const f = A.fails[fk] || { n: 0, at: 0 };
@@ -267,6 +337,14 @@ async function api(req, env, url, parts, ctx) {
   if (r === 'me') { if (dirty) await save(); return J(200, { me: pub(A, me) }); }
   if (r === 'password' && req.method === 'POST') { const d = await body(req, 1e4); if (!me.mustChange && !(s.qrAt && Date.now() - s.qrAt < 15 * 60000) && !(await checkPw(me, d.current))) return J(403, { error: 'Your current password is wrong.' }); if (!pwOK(A, d.password)) return J(400, { error: 'New password: at least ' + Math.max(8, +POL(A).minLen || 8) + ' characters with letters and a number.' }); await setPw(me, d.password); me.mustChange = false; audit(A, me, 'changed own password', me.name); await save(); return J(200, { me: pub(A, me) }); }
   if (r === 'qr' && parts[2] === 'approve' && req.method === 'POST') { const d = await body(req, 1e4); A.qr = A.qr || {}; const q = A.qr[String(d.id || '')]; if (!q || Date.now() - q.at > 5 * 60000) return J(410, { error: 'That QR code has expired – make a new one on the other device.' }); if (q.uid) return J(409, { error: 'That QR code has already been used.' }); q.uid = me.id; audit(A, me, 'approved sign-in by QR code', me.name, q.ua || ''); await save(); return J(200, { ok: true, device: q.ua || 'device' }); }
+  if (r === 'passkey' && req.method === 'POST') { const d = await body(req, 2e4); const { origin, rpId } = PK.site(req); me.passkeys = me.passkeys || [];
+    if (parts[2] === 'reg-start') { const ch = PK.rand(32); me.pkReg = { ch, at: Date.now() }; await save(); const co = (await company(db)).company;
+      return J(200, { options: { challenge: ch, rp: { name: co + ' · Construction-OS', id: rpId }, user: { id: PK.b64u(new TextEncoder().encode(me.id)), name: me.login, displayName: me.name || me.login }, pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }], timeout: 120000, attestation: 'none', authenticatorSelection: { residentKey: 'required', requireResidentKey: true, userVerification: 'required' }, excludeCredentials: me.passkeys.map(k => ({ type: 'public-key', id: k.id })) } }); }
+    if (parts[2] === 'reg-finish') { const g = me.pkReg; delete me.pkReg; if (!g || Date.now() - g.at > 5 * 60000) { await save(); return J(400, { error: 'This request has expired – try again.' }); }
+      let k; try { k = await PK.verifyRegistration(d.cred, g.ch, origin, rpId); } catch (e) { await save(); return J(400, { error: e.message }); }
+      if (me.passkeys.length >= 20) return J(400, { error: 'You already have 20 passkeys – remove one first.' }); me.passkeys.push({ id: k.id, jwk: k.jwk, alg: k.alg, name: String(d.name || 'Passkey').slice(0, 60), at: Date.now() }); audit(A, me, 'added Face ID / fingerprint sign-in', me.name, String(d.name || '')); await save(); return J(200, { me: pub(A, me) }); }
+    if (parts[2] === 'remove') { me.passkeys = me.passkeys.filter(k => k.id !== d.id); audit(A, me, 'removed a passkey', me.name); await save(); return J(200, { me: pub(A, me) }); }
+    return J(404, { error: 'Not found' }); }
   if (r === 'backup' && req.method === 'POST') { const d = await body(req, 1e4); if (!(await checkPw(me, d.password)) && !(s.qrAt && Date.now() - s.qrAt < 15 * 60000)) return J(403, { error: 'Your password is wrong.' }); const C = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const codes = []; me.backup = [];
     for (let i = 0; i < 10; i++) { const b = rnd(8); const c = [...b].map(x => C[x % 32]).join(''); codes.push(c.slice(0, 4) + '-' + c.slice(4)); me.backup.push(await tokHash(c)); }
     audit(A, me, 'made new backup recovery codes', me.name); await save(); return J(200, { codes, me: pub(A, me) }); }
