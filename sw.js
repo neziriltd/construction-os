@@ -1,5 +1,5 @@
 /* Construction-OS Server – service worker: keeps the app itself available offline. Your data always comes from your server. */
-const V='cos-server-1';const CORE=['/','/index.html','/cos-server.js','/manifest.webmanifest'];
+const V='cos-server-2';const CORE=['/','/index.html','/cos-server.js','/install.js','/manifest.webmanifest'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(K=>Promise.all(K.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==location.origin||e.request.method!=='GET')return;

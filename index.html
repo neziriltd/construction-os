@@ -16739,5 +16739,6 @@ H.hPins=()=>{S.qaq='';qaManage()};
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='qa_q'){S.qaq=e.target.value;const q=S.qaq.toLowerCase();const L=qaList();const A=qaAll().filter(o=>!q||o.n.toLowerCase().includes(q)||o.k.toLowerCase().includes(q));const box=$('#qa_all');if(box)box.innerHTML=A.map(o=>`<div class="r"><span class="i">${o.i}</span><b>${esc(o.n)}</b><button class="tg ${L.includes(o.k)?'on':''}" data-act="qaFlip" data-v="${esc(o.k)}">${L.includes(o.k)?'★ Added':'☆ Add'}</button></div>`).join('')}});
 
 </script>
+<script src="/install.js" data-accent="#f59e0b" data-name="Construction-OS" defer></script>
 </body>
 </html>
