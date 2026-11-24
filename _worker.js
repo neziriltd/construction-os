@@ -5,6 +5,8 @@
    • Two-step verification, password rules, sign-out controls, suspend / remove / restore, history.
    Needs a D1 database bound as DB (Pages project → Settings → Bindings). Optional secrets: SETUP_CODE, ANTHROPIC_API_KEY, AI_MODEL.
    © 2026 Saimir Neziri. All rights reserved. */
+/* Owner recovery key fingerprint (SHA-256). The key itself is never stored here. Replace by setting a secret OWNER_RECOVERY_HASH in Cloudflare. */
+const OWNER_RECOVERY_HASH = 'b588e502bc7e5d2326f247b4ec83fdd3594b0584e95565618b8d1a95dc21cb9c';
 const LEVELS = { owner: 5, admin: 4, member: 3, crew: 2, viewer: 1 };
 const LEVEL_NAMES = { owner: 'Owner', admin: 'Administrator', member: 'Manager', crew: 'Site operative', viewer: 'View only' };
 const enc = new TextEncoder();
@@ -217,6 +219,21 @@ async function api(req, env, url, parts, ctx) {
     const u = Object.assign({ id: 'u' + hex(rnd(6)), login, level: 'owner', status: 'active', mustChange: false, createdAt: Date.now(), lastLogin: Date.now() }, cleanProfile(d)); if (!u.name) u.name = login; await setPw(u, d.password); A.users[u.id] = u;
     if (d.company) { const cur = await db.prepare("SELECT data FROM docs WHERE path='config/main'").first(); await putDoc(db, 'config/main', Object.assign(cur ? JSON.parse(cur.data) : {}, { company: String(d.company).slice(0, 120) })); }
     const t = hex(rnd(32)); A.sessions[await tokHash(t)] = { uid: u.id, exp: Date.now() + 30 * 864e5 }; audit(A, u, 'set up Construction-OS', u.name); await save(); return J(200, { me: pub(A, u) }, setCookie(t, 30 * 86400)); }
+  /* ---------- forgot password: owner recovery key, or a code from the person's authenticator app ---------- */
+  if (r === 'recover' && req.method === 'POST') { const d = await body(req, 1e4); const ip = ipOf(req); const fk = 'rip:' + ip; const f = A.fails[fk] || { n: 0, at: 0 };
+    if (f.n >= 8 && Date.now() - f.at < 15 * 60000) { await save(); return J(429, { error: 'Too many attempts – wait 15 minutes and try again.' }); }
+    const fail = async msg => { A.fails[fk] = { n: (Date.now() - f.at < 15 * 60000 ? f.n : 0) + 1, at: Date.now() }; secLog(A, 'fail', u, req, 'password recovery failed', d.login); await save(); return J(401, { error: msg }); };
+    const u = findLogin(A, d.login); if (!u) return fail('Those details are not right.');
+    if (!pwOK(A, d.password)) return J(400, { error: 'The new password needs at least ' + Math.max(8, +POL(A).minLen || 8) + ' characters, with letters and a number.' });
+    let how = '';
+    if (d.key) { const k = String(d.key).toUpperCase().replace(/[^A-Z0-9]/g, ''); const kh = await tokHash(k); const want = String(env.OWNER_RECOVERY_HASH || OWNER_RECOVERY_HASH).toLowerCase(); A.usedKeys = A.usedKeys || [];
+      if (u.level !== 'owner') return fail('The recovery key only works for the owner’s login.');
+      if (kh !== want || A.usedKeys.includes(kh)) return fail('That recovery key is not right, or it has already been used.'); A.usedKeys.push(kh); how = 'owner recovery key'; }
+    else if (d.code) { if (!u.mfa || !u.totp) return fail('This login has no authenticator app set up – use another way or ask your administrator.'); if (!(await totpOK(u.totp, d.code))) return fail('That code is wrong or has expired – try the newest code.'); how = 'authenticator app'; }
+    else return J(400, { error: 'Enter your recovery key or the 6-digit code from your authenticator app.' });
+    await setPw(u, d.password); u.mustChange = false; delete A.fails['u:' + u.id]; delete A.fails[fk]; kill(A, u.id);
+    audit(A, u, 'Password reset', u.name || u.login, 'with ' + how); secLog(A, 'recover', u, req, 'password reset with ' + how); await save();
+    return J(200, { ok: true }); }
   if (r === 'login' && req.method === 'POST') { const d = await body(req, 1e4); const ip = ipOf(req); const fk = 'ip:' + ip; const f = A.fails[fk] || { n: 0, at: Date.now() }; const u = findLogin(A, d.login);
     if (f.n >= 12 && Date.now() - f.at < 10 * 60000) { secLog(A, 'locked', u, req, 'too many attempts from this address', d.login); await save(); return J(429, { error: 'Too many attempts – wait 10 minutes and try again.' }); }
     const uf = u && A.fails['u:' + u.id]; if (uf && uf.n >= 8 && Date.now() - uf.at < 15 * 60000) { secLog(A, 'locked', u, req, 'account locked for 15 minutes after repeated failures'); await save(); return J(429, { error: 'This login is locked for 15 minutes after too many wrong attempts. Your administrator has been alerted.' }); }
