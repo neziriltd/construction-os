@@ -68,6 +68,10 @@ const PK = (() => {
   return { b64u, unb64u, rand, verifyRegistration, verifyAssertion, site };
 })();
 
+/* Role doors: /signin/owner, /signin/admin, /signin/manager, /signin/operative – each only lets in its own logins. */
+const DOORS = { owner: ['owner'], admin: ['admin'], manager: ['member'], operative: ['crew', 'viewer'] };
+const DOOR_NAMES = { owner: 'the owner', admin: 'administrators', manager: 'managers', operative: 'site operatives' };
+const doorBlock = (door, u) => (door && DOORS[door] && u && !DOORS[door].includes(u.level)) ? 'This sign-in page is for ' + DOOR_NAMES[door] + ' only – please use your own sign-in page.' : null;
 const LEVELS = { owner: 5, admin: 4, member: 3, crew: 2, viewer: 1 };
 const LEVEL_NAMES = { owner: 'Owner', admin: 'Administrator', member: 'Manager', crew: 'Site operative', viewer: 'View only' };
 const enc = new TextEncoder();
@@ -290,12 +294,14 @@ async function api(req, env, url, parts, ctx) {
     const u = Object.values(A.users).find(x => (x.passkeys || []).some(k => k.id === d.cred.id)); if (!u) { await save(); return J(401, { error: 'This passkey isn’t linked to any login here. Sign in with your password, then add Face ID / fingerprint in My account.' }); }
     const k = u.passkeys.find(x => x.id === d.cred.id); try { await PK.verifyAssertion(d.cred, k, q.ch, origin, rpId); } catch (e) { secLog(A, 'fail', u, req, 'passkey: ' + e.message); await save(); return J(401, { error: e.message }); }
     if (u.status !== 'active') { await save(); return J(403, { error: 'Your login is suspended – please speak to your administrator.' }); } if (!activeOK(u)) { await save(); return J(403, { error: 'Your access has ended – please speak to your administrator.' }); }
+    { const db2 = doorBlock(d.door, u); if (db2) { await save(); return J(403, { error: db2, code: 'wrong_door' }); } }
     k.used = now; return openSession(u, 'Face ID / fingerprint'); }
   /* ---------- sign in with a QR code approved on a device that is already signed in ---------- */
   if (r === 'qr' && parts[2] !== 'approve' && req.method === 'POST') { const d = await body(req, 1e4); A.qr = A.qr || {}; const now = Date.now(); for (const [k, q] of Object.entries(A.qr)) if (now - q.at > 6 * 60000) delete A.qr[k];
     if (parts[2] === 'start') { if (Object.keys(A.qr).length > 200) return J(429, { error: 'Too many waiting – try again in a few minutes.' }); const id = hex(rnd(9)), sec = hex(rnd(24)); A.qr[id] = { sh: await tokHash(sec), at: now, ua: devName(String(req.headers.get('user-agent') || '')), ip: ipOf(req) }; await save(); return J(200, { id, secret: sec, ttl: 300 }); }
     if (parts[2] === 'poll') { const q = A.qr[String(d.id || '')]; if (!q || q.sh !== await tokHash(String(d.secret || ''))) return J(410, { error: 'This QR code has expired – make a new one.' });
       if (!q.uid) return J(200, { wait: true }); const u = A.users[q.uid]; delete A.qr[d.id]; if (!u || u.status !== 'active' || !activeOK(u)) { await save(); return J(403, { error: 'This login cannot be used.' }); }
+      { const db2 = doorBlock(d.door, u); if (db2) { await save(); return J(403, { error: db2, code: 'wrong_door' }); } }
       return openSession(u, 'QR code'); }
     return J(404, { error: 'Not found' }); }
   /* ---------- forgot password: owner recovery key, or a code from the person's authenticator app ---------- */
@@ -319,6 +325,7 @@ async function api(req, env, url, parts, ctx) {
     const uf = u && A.fails['u:' + u.id]; if (uf && uf.n >= 8 && Date.now() - uf.at < 15 * 60000) { secLog(A, 'locked', u, req, 'account locked for 15 minutes after repeated failures'); await save(); return J(429, { error: 'This login is locked for 15 minutes after too many wrong attempts. Your administrator has been alerted.' }); }
     const bad = async (msg, code, kind, det) => { A.fails[fk] = { n: (Date.now() - f.at < 10 * 60000 ? f.n : 0) + 1, at: Date.now() }; if (u) A.fails['u:' + u.id] = { n: (uf && Date.now() - uf.at < 15 * 60000 ? uf.n : 0) + 1, at: Date.now() }; secLog(A, kind || 'fail', u, req, det || (u ? 'wrong password' : 'unknown login'), d.login); await save(); return J(401, { error: msg, code }); };
     if (!u || !(await checkPw(u, d.password))) return bad('Email/username or password is wrong.');
+    { const db2 = doorBlock(d.door, u); if (db2) { secLog(A, 'fail', u, req, 'wrong sign-in page: ' + d.door); await save(); return J(403, { error: db2, code: 'wrong_door' }); } }
     if (u.status !== 'active') { secLog(A, 'fail', u, req, 'suspended login'); await save(); return J(403, { error: 'Your login is suspended – please speak to your administrator.' }); } if (!activeOK(u)) return J(403, { error: 'Your access has ended – please speak to your administrator.' });
     if (!ipAllowed(A, u, ip)) { secLog(A, 'ipblock', u, req, 'location not allowed'); await save(); return J(403, { error: 'Sign-in from this location is not allowed – please speak to your administrator.' }); }
     if (u.mfa) { if (!d.code) return J(401, { error: 'Enter the 6-digit code from your authenticator app.', code: 'mfa_required' }); if (!(await totpOK(u.totp, d.code))) return bad('That code is wrong or has expired – try the newest code.', 'mfa_required', 'mfafail', 'wrong 2-step code'); }
